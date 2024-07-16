@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         cacheDirectory=".phpunit.cache">
+    <testsuites>
+        <testsuite name="ewkb-writer">
+            <directory>tests/LongitudeOne/EwkbWriter/Unit</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">lib/</directory>
+        </include>
+    </source>
+    <coverage cacheDirectory=".phpunit.cache/code-coverage">
+        <report>
+            <clover outputFile=".phpunit.cache/code-coverage/clover.xml"/>
+            <text outputFile=".phpunit.cache/code-coverage/text.txt" showOnlySummary="true"/>
+        </report>
+    </coverage>
+</phpunit>
