@@ -1,0 +1,32 @@
+{
+    "name": "longitude-one/ewkb-writer",
+    "type": "library",
+    "description": "This library convert any spatial interfaces to Extended Well Known Binary format.",
+    "keywords": ["opengis", "postgis", "gis", "spatial", "geometry", "geography", "iso-13249", "ewkb", "php"],
+    "authors": [
+        {
+            "name": "Alexandre Tranchant",
+            "email": "alexandre.tranchant@gmail.com"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
+    },
+    "license": "MIT",
+    "require": {
+        "php": "^8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "LongitudeOne\\EwkbWriter": "lib/",
+            "LongitudeOne\\EwkbWriter\\Tests": "tests/"
+        }
+    }
+}
