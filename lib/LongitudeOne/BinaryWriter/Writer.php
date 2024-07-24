@@ -48,8 +48,6 @@ class Writer implements WriterInterface
 
     /**
      * Get the current strategy.
-     *
-     * @return BinaryStrategyInterface
      */
     public function getStrategy(): BinaryStrategyInterface
     {
