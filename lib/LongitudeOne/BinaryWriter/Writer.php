@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter;
+namespace LongitudeOne\BinaryWriter;
 
-use LongitudeOne\EwkbWriter\Strategy\BinaryStrategyInterface;
+use LongitudeOne\BinaryWriter\Strategy\BinaryStrategyInterface;
 use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
 
 /**

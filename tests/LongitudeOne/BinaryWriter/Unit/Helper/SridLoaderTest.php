@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,15 +14,15 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Unit\Helper;
+namespace LongitudeOne\BinaryWriter\Unit\Helper;
 
-use LongitudeOne\EwkbWriter\Helper\SridLoader;
+use LongitudeOne\BinaryWriter\Helper\SridLoader;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Helper\SridLoader
+ * @covers \LongitudeOne\BinaryWriter\Helper\SridLoader
  */
 class SridLoaderTest extends TestCase
 {

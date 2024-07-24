@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Helper;
+namespace LongitudeOne\BinaryWriter\Helper;
 
-use LongitudeOne\EwkbWriter\Exception\UnavailableResourceException;
+use LongitudeOne\BinaryWriter\Exception\UnavailableResourceException;
 
 class SridLoader
 {

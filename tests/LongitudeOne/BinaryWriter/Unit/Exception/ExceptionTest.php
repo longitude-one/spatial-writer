@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,23 +14,23 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Tests\Unit\Exception;
+namespace LongitudeOne\BinaryWriter\Tests\Unit\Exception;
 
-use LongitudeOne\EwkbWriter\Exception\ExceptionInterface;
-use LongitudeOne\EwkbWriter\Exception\UnavailableResourceException;
-use LongitudeOne\EwkbWriter\Exception\UnsupportedDimensionException;
-use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\BinaryWriter\Exception\ExceptionInterface;
+use LongitudeOne\BinaryWriter\Exception\UnavailableResourceException;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedDimensionException;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Exception\UnavailableResourceException
- * @covers \LongitudeOne\EwkbWriter\Exception\UnsupportedDimensionException
- * @covers \LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException
- * @covers \LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException
+ * @covers \LongitudeOne\BinaryWriter\Exception\UnavailableResourceException
+ * @covers \LongitudeOne\BinaryWriter\Exception\UnsupportedDimensionException
+ * @covers \LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException
+ * @covers \LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException
  */
 class ExceptionTest extends TestCase
 {

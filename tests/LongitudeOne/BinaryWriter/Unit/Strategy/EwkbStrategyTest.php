@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Tests\Unit\Strategy;
+namespace LongitudeOne\BinaryWriter\Tests\Unit\Strategy;
 
-use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException;
-use LongitudeOne\EwkbWriter\Strategy\WkbBinaryStrategy;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\BinaryWriter\Strategy\EwkbBinaryStrategy;
 use LongitudeOne\Spatial\Exception\InvalidValueException;
 use LongitudeOne\Spatial\PHP\Types\Geometry\LineString;
 use LongitudeOne\Spatial\PHP\Types\Geometry\MultiLineString;
@@ -39,9 +39,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Strategy\WkbBinaryStrategy
+ * @covers \LongitudeOne\BinaryWriter\Strategy\EwkbBinaryStrategy
  */
-class WkbStrategyTest extends TestCase
+class EwkbStrategyTest extends TestCase
 {
     private const SRID_XY = 7035;
     private const SRID_YX = 4326;
@@ -49,7 +49,7 @@ class WkbStrategyTest extends TestCase
     /**
      * WkbBinaryStrategy instance.
      */
-    private WkbBinaryStrategy $strategy;
+    private EwkbBinaryStrategy $strategy;
 
     /**
      * Set up the test.
@@ -57,7 +57,7 @@ class WkbStrategyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->strategy = new WkbBinaryStrategy();
+        $this->strategy = new EwkbBinaryStrategy();
     }
 
     /**
@@ -97,13 +97,13 @@ class WkbStrategyTest extends TestCase
         // Let's try a line-string with a YX SRID
         yield 'SRID=4326;LINESTRING(0 0, 1 1)' => [
             (new LineString([$origin, $destination]))->setSrid(self::SRID_YX),
-            '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
+            '0102000020E61000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
         ];
 
         // Let's try a line-string with a XY SRID
         yield 'SRID=7035;LINESTRING(0 0, 1 1)' => [
             (new LineString([$origin, $destination]))->setSrid(self::SRID_XY),
-            '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
+            '01020000207B1B00000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
         ];
     }
 
@@ -214,7 +214,7 @@ class WkbStrategyTest extends TestCase
         // Let's add a SRID to the point
         yield 'SRID=4326;GEOMETRIC POINT(0 0)' => [
             (new GeometricPoint(0, 0))->setSrid(self::SRID_YX),
-            '010100000000000000000000000000000000000000',
+            '0101000020E610000000000000000000000000000000000000',
         ];
 
         // Let's check a point with X and Y different from 0
@@ -238,13 +238,13 @@ class WkbStrategyTest extends TestCase
         // Let's check that the SRID YX does NOT affect the result
         yield 'SRID=4326;POINT(1 -1)' => [
             (new GeometricPoint(1, -1))->setSrid(self::SRID_YX),
-            '0101000000000000000000F03F000000000000F0BF',
+            '0101000020E6100000000000000000F03F000000000000F0BF',
         ];
 
         // Let's check that the SRID XY does NOT affect the result
         yield 'SRID=7035; POINT(1 -1)' => [
             (new GeometricPoint(1, -1))->setSrid(self::SRID_XY),
-            '0101000000000000000000F03F000000000000F0BF',
+            '01010000207B1B0000000000000000F03F000000000000F0BF',
         ];
     }
 

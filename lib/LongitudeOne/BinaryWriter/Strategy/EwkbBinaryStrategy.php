@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,10 +14,10 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Strategy;
+namespace LongitudeOne\BinaryWriter\Strategy;
 
-use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\Spatial\PHP\Types\LineStringInterface;
 use LongitudeOne\Spatial\PHP\Types\MultiLineStringInterface;
 use LongitudeOne\Spatial\PHP\Types\MultiPointInterface;

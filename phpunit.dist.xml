@@ -5,7 +5,7 @@
          stopOnFailure="true">
     <testsuites>
         <testsuite name="ewkb-writer">
-            <directory>tests/LongitudeOne/EwkbWriter/Unit</directory>
+            <directory>tests/LongitudeOne/BinaryWriter/Unit</directory>
         </testsuite>
     </testsuites>
     <source>

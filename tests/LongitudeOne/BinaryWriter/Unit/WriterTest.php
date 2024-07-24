@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,18 +14,18 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Unit;
+namespace LongitudeOne\BinaryWriter\Unit;
 
-use LongitudeOne\EwkbWriter\Strategy\MySQLBinaryStrategy;
-use LongitudeOne\EwkbWriter\Strategy\WkbBinaryStrategy;
-use LongitudeOne\EwkbWriter\Writer;
+use LongitudeOne\BinaryWriter\Strategy\MySQLBinaryStrategy;
+use LongitudeOne\BinaryWriter\Strategy\WkbBinaryStrategy;
+use LongitudeOne\BinaryWriter\Writer;
 use LongitudeOne\Spatial\PHP\Types\Geometry\Point;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Writer
+ * @covers \LongitudeOne\BinaryWriter\Writer
  */
 class WriterTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the ewkb-writer project.
+ * This file is part of the binary-writer project.
  *
  * PHP 8.1 | 8.2 | 8.3
  *
@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Helper;
+namespace LongitudeOne\BinaryWriter\Helper;
 
 /**
  * Each Spatial Reference System (SRS) is defined by its SRID and its AXIS ORDER for Geography.
