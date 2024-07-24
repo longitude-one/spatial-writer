@@ -21,7 +21,19 @@ use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
 
 interface WriterInterface
 {
+    /**
+     * Writer constructor.
+     *
+     * @param AdapterInterface $adapter the strategy to use
+     */
     public function __construct(AdapterInterface $adapter);
 
+    /**
+     * Convert a spatial interface to another representation.
+     *
+     * @param SpatialInterface $spatial the spatial interface to convert
+     *
+     * @return string a string representing the spatial interface in the implemented representation
+     */
     public function convert(SpatialInterface $spatial): string;
 }

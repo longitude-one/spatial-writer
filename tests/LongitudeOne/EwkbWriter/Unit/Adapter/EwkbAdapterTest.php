@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter\Tests\Unit\Adapter;
 
-use LongitudeOne\EwkbWriter\Adapter\WkbAdapter;
+use LongitudeOne\EwkbWriter\Adapter\EwkbAdapter;
 use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\Spatial\Exception\InvalidValueException;
@@ -39,9 +39,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Adapter\WkbAdapter
+ * @covers \LongitudeOne\EwkbWriter\Adapter\EwkbAdapter
  */
-class WkbAdapterTest extends TestCase
+class EwkbAdapterTest extends TestCase
 {
     private const SRID_XY = 7035;
     private const SRID_YX = 4326;
@@ -49,7 +49,7 @@ class WkbAdapterTest extends TestCase
     /**
      * WkbAdapter instance.
      */
-    private WkbAdapter $adapter;
+    private EwkbAdapter $adapter;
 
     /**
      * Set up the test.
@@ -57,7 +57,7 @@ class WkbAdapterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->adapter = new WkbAdapter();
+        $this->adapter = new EwkbAdapter();
     }
 
     /**
@@ -97,13 +97,13 @@ class WkbAdapterTest extends TestCase
         // Let's try a line-string with a YX SRID
         yield 'SRID=4326;LINESTRING(0 0, 1 1)' => [
             (new LineString([$origin, $destination]))->setSrid(self::SRID_YX),
-            '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
+            '0102000020E61000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
         ];
 
         // Let's try a line-string with a XY SRID
         yield 'SRID=7035;LINESTRING(0 0, 1 1)' => [
             (new LineString([$origin, $destination]))->setSrid(self::SRID_XY),
-            '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
+            '01020000207B1B00000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
         ];
     }
 
@@ -214,7 +214,7 @@ class WkbAdapterTest extends TestCase
         // Let's add a SRID to the point
         yield 'SRID=4326;GEOMETRIC POINT(0 0)' => [
             (new GeometricPoint(0, 0))->setSrid(self::SRID_YX),
-            '010100000000000000000000000000000000000000',
+            '0101000020E610000000000000000000000000000000000000',
         ];
 
         // Let's check a point with X and Y different from 0
@@ -238,13 +238,13 @@ class WkbAdapterTest extends TestCase
         // Let's check that the SRID YX does NOT affect the result
         yield 'SRID=4326;POINT(1 -1)' => [
             (new GeometricPoint(1, -1))->setSrid(self::SRID_YX),
-            '0101000000000000000000F03F000000000000F0BF',
+            '0101000020E6100000000000000000F03F000000000000F0BF',
         ];
 
         // Let's check that the SRID XY does NOT affect the result
         yield 'SRID=7035; POINT(1 -1)' => [
             (new GeometricPoint(1, -1))->setSrid(self::SRID_XY),
-            '0101000000000000000000F03F000000000000F0BF',
+            '01010000207B1B0000000000000000F03F000000000000F0BF',
         ];
     }
 

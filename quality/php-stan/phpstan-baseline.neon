@@ -1,61 +1,176 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to function is_object\\(\\) with array\\<float\\|int\\> will always evaluate to false\\.$#"
-			count: 1
-			path: ../../lib/LongitudeOne/Spatial/PHP/Types/AbstractGeometry.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface\\:\\:getPoints\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
-			count: 1
-			path: ../../lib/LongitudeOne/Spatial/PHP/Types/AbstractGeometry.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiLineStringInterface\\:\\:getLineStrings\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^Call to function is_array\\(\\) with Doctrine\\\\ORM\\\\Mapping\\\\FieldMapping will always evaluate to false\\.$#"
-			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/DBAL/Types/Geometry/PointTypeTest.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPointInterface\\:\\:getPoints\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^If condition is always true\\.$#"
-			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/DBAL/Types/Geometry/PointTypeTest.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPolygonInterface\\:\\:getPolygons\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^Parameter \\#3 \\$processors of method Monolog\\\\Logger\\:\\:__construct\\(\\) expects array\\<callable\\(array\\)\\: array\\>, array\\{Monolog\\\\Processor\\\\PsrLogMessageProcessor\\} given\\.$#"
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\:\\:getX\\(\\)\\.$#"
 			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/Doctrine/Logging/FileLogger.php
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\:\\:getY\\(\\)\\.$#"
 			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/ORM/Query/AST/Functions/PostgreSql/SpScaleTest.php
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/ORM/Query/AST/Functions/PostgreSql/SpTransformTest.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PolygonInterface\\:\\:getRings\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/EwkbAdapter.php
 
 		-
-			message: "#^Return type of call to method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<Doctrine\\\\DBAL\\\\Driver\\\\PDO\\\\SQLite\\\\Driver\\>\\:\\:getMock\\(\\) contains unresolvable type\\.$#"
-			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/OrmMockTestCase.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface\\:\\:getPoints\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
 
 		-
-			message: "#^Parameter \\#1 \\$points of class LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\Geometry\\\\LineString constructor expects array\\<array\\<float\\|int\\>\\|LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\>, array\\<int, int\\> given\\.$#"
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiLineStringInterface\\:\\:getLineStrings\\(\\)\\.$#"
 			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/PHP/Types/Geometry/LineStringTest.php
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
 
 		-
-			message: "#^Parameter \\#1 \\$points of class LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\Geometry\\\\MultiPoint constructor expects array\\<array\\<float\\|int\\>\\|LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\>, array\\<int, int\\> given\\.$#"
-			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/PHP/Types/Geometry/MultiPointTest.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPointInterface\\:\\:getPoints\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
 
 		-
-			message: "#^Parameter \\#1 \\$polygon of method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractMultiPolygon\\:\\:addPolygon\\(\\) expects array\\<array\\<array\\<float\\|int\\>\\|LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\>\\|LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface\\|LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPointInterface\\>\\|LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PolygonInterface, string given\\.$#"
-			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/PHP/Types/Geometry/MultiPolygonTest.php
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPolygonInterface\\:\\:getPolygons\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
 
 		-
-			message: "#^Class Doctrine\\\\DBAL\\\\Platforms\\\\MySQL57Platform not found\\.$#"
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\:\\:getX\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\:\\:getY\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PolygonInterface\\:\\:getRings\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/MySQLAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface\\:\\:getPoints\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiLineStringInterface\\:\\:getLineStrings\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPointInterface\\:\\:getPoints\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\MultiPolygonInterface\\:\\:getPolygons\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\:\\:getX\\(\\)\\.$#"
 			count: 1
-			path: ../../tests/LongitudeOne/Spatial/Tests/SpatialTestCase.php
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface\\:\\:getY\\(\\)\\.$#"
+			count: 1
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Call to an undefined method LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PolygonInterface\\:\\:getRings\\(\\)\\.$#"
+			count: 2
+			path: ../../lib/LongitudeOne/EwkbWriter/Adapter/WkbAdapter.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '01020000207B1B00000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/EwkbAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '0102000020E61000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/EwkbAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '01010000207B1B00000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/EwkbAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '0101000020E61000000…'\\} given\\.$#"
+			count: 2
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/EwkbAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '7B1B000001020000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, 'E610000001020000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '0000000001010000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '7B1B00000101000000C…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, 'E610000001010000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, 'E61000000101000000F…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PolygonInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '7B1B000001030000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PolygonInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, 'E610000001030000000…'\\} given\\.$#"
+			count: 1
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/MySQLAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\LineStringInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '0102000000020000000…'\\} given\\.$#"
+			count: 2
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/WkbAdapterTest.php
+
+		-
+			message: "#^Generator expects value type array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\PointInterface, string\\}, array\\{LongitudeOne\\\\Spatial\\\\PHP\\\\Types\\\\AbstractGeometry, '0101000000000000000…'\\} given\\.$#"
+			count: 3
+			path: ../../tests/LongitudeOne/EwkbWriter/Unit/Adapter/WkbAdapterTest.php

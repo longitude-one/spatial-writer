@@ -14,19 +14,8 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Unit;
+namespace LongitudeOne\EwkbWriter\Exception;
 
-use PHPUnit\Framework\TestCase;
-
-/**
- * @internal
- *
- * @coversNothing
- */
-class FooTest extends TestCase
+interface ExceptionInterface extends \Throwable
 {
-    public function testFoo(): void
-    {
-        self::assertNotSame('foo', 'bar');
-    }
 }
