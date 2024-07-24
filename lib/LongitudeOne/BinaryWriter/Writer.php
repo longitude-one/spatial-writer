@@ -46,11 +46,23 @@ class Writer implements WriterInterface
         return $this->strategy->executeStrategy($spatial);
     }
 
+    /**
+     * Get the current strategy.
+     *
+     * @return BinaryStrategyInterface
+     */
     public function getStrategy(): BinaryStrategyInterface
     {
         return $this->strategy;
     }
 
+    /**
+     * Set a new strategy to use.
+     *
+     * @param BinaryStrategyInterface $strategy the strategy to use
+     *
+     * @return static the current instance
+     */
     public function setStrategy(BinaryStrategyInterface $strategy): self
     {
         $this->strategy = $strategy;
