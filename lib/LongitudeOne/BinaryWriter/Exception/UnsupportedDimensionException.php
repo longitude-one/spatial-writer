@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace LongitudeOne\BinaryWriter\Exception;
 
-use JetBrains\PhpStorm\Pure;
-
 /**
  * Unsupported (M or/and Z) dimensions exception.
  *
@@ -26,20 +24,4 @@ use JetBrains\PhpStorm\Pure;
  */
 class UnsupportedDimensionException extends \InvalidArgumentException implements ExceptionInterface
 {
-    /**
-     * UnsupportedDimensionException constructor.
-     *
-     * @param string          $message  the exception message
-     * @param int             $code     the exception code
-     * @param null|\Throwable $previous the previous exception
-     */
-    #[Pure]
-    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null)
-    {
-        if (empty($message)) {
-            $message = 'MySQL does not support Z nor M dimensions yet.';
-        }
-
-        parent::__construct($message, $code, $previous);
-    }
 }
