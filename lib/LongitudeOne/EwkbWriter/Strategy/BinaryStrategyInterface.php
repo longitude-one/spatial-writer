@@ -18,7 +18,12 @@ namespace LongitudeOne\EwkbWriter\Strategy;
 
 use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
 
-interface AdapterInterface
+/**
+ * This interface implements the strategy pattern.
+ * It is used to convert a spatial interface to a binary string.
+ * The strategy is implemented by each class implementing the current interface.
+ */
+interface BinaryStrategyInterface
 {
     /**
      * Convert a spatial interface to another representation.
@@ -27,5 +32,5 @@ interface AdapterInterface
      *
      * @return string a string representing the spatial interface in the implemented representation
      */
-    public function convert(SpatialInterface $spatial): string;
+    public function executeStrategy(SpatialInterface $spatial): string;
 }

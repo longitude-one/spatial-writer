@@ -27,55 +27,52 @@ use LongitudeOne\Spatial\PHP\Types\PolygonInterface;
 use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
 
 /**
- * Well-Known binary adapter.
+ * Strategy to convert a spatial interface to its extended well-known binary representation.
  *
- * This class is responsible for converting a spatial interface to its well-known binary representation.
+ * This strategy allows the context to convert a spatial interface into its extended well-known binary representation.
+ * It is a binary representation of the spatial interface.
+ * This representation is based on the PostGIS implementation.
+ *
+ * @see https://postgis.net/docs/using_postgis_dbmanagement.html#EWKB_EWKT
+ *
+ * PostGIS extended formats are currently a superset of the OGC ones,
+ * so that every valid OGC WKB/WKT is also valid EWKB/EWKT.
  */
-class WkbAdapter implements AdapterInterface
+class EwkbBinaryStrategy implements BinaryStrategyInterface
 {
     /**
-     * Convert a spatial interface to its well-known binary representation.
+     * Convert a spatial interface to its extended well-known binary representation.
      *
-     * Well-Known binary representation is a standard binary format for representing simple and complex geometries,
-     * defined by the Open Geospatial Consortium (OGC).
-     *
-     * @see https://libgeos.org/specifications/wkb/#standard-wkb
-     *
-     * @param SpatialInterface $spatial the spatial interface to convert into EWKB format
+     * @param SpatialInterface $spatial the spatial interface to convert
      *
      * @return string a binary string representing the spatial interface in EWKB format
      *
      * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      */
-    public function convert(SpatialInterface $spatial): string
+    public function executeStrategy(SpatialInterface $spatial): string
     {
-        $wkb = $this->writeByteOrder();
-        $wkb .= $this->writeType($spatial);
-        $wkb .= $this->writeCoordinates($spatial);
+        $ewkb = $this->writeFirstByte();
+        if (empty($spatial->getSrid())) {
+            // WKB mode: every valid OGC WKB/WKT is also valid EWKB/EWKT
+            $ewkb .= $this->writeType($spatial);
+            $ewkb .= $this->writeCoordinates($spatial);
 
-        return $wkb;
+            return $ewkb;
+        }
+
+        // EWKB mode
+        $ewkb .= $this->writeTypeAndDimension($spatial);
+        $ewkb .= $this->writeSrid($spatial);
+        $ewkb .= $this->writeCoordinates($spatial);
+
+        return $ewkb;
     }
 
     /**
-     * Write the byte order.
+     * Let's call the right method to write coordinates.
      *
-     * The byte order is always little endian.
-     *
-     * @return string a binary string representing the byte order in little endian
-     */
-    private function writeByteOrder(): string
-    {
-        // We always write into little endian
-        return pack('C', 1);
-    }
-
-    /**
-     * Write the coordinates.
-     *
-     * @param SpatialInterface $spatial the spatial interface to write
-     *
-     * @return string a binary string representing the coordinates
+     * @param SpatialInterface $spatial the spatial interface to convert
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
@@ -95,89 +92,88 @@ class WkbAdapter implements AdapterInterface
     }
 
     /**
-     * Write a line string.
+     * Write the first byte.
      *
-     * @param LineStringInterface $lineString the line string to write
-     *
-     * @return string a binary string representing the line string
+     * @return string the first byte
      */
-    private function writeLineString(LineStringInterface $lineString): string
+    private function writeFirstByte(): string
     {
-        $wkb = pack('L', count($lineString->getPoints()));
-        foreach ($lineString->getPoints() as $point) {
-            $wkb .= $this->writePoint($point);
-        }
-
-        return $wkb;
+        return pack('C', 1); // We always write into little endian
     }
 
     /**
-     * Write a multi-line string.
+     * Write a line string.
      *
-     * @param MultiLineStringInterface $multiLineString the multi-line string to write
+     * @param LineStringInterface $lineString the line string to write
+     */
+    private function writeLineString(LineStringInterface $lineString): string
+    {
+        $ewkb = pack('L', count($lineString->getPoints()));
+        foreach ($lineString->getPoints() as $point) {
+            $ewkb .= $this->writePoint($point);
+        }
+
+        return $ewkb;
+    }
+
+    /**
+     * Write a multi line string.
      *
-     * @return string a binary string representing the multi-line string
+     * @param MultiLineStringInterface $multiLineString the multi line string to write
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiLineString(MultiLineStringInterface $multiLineString): string
     {
-        $wkb = pack('L', count($multiLineString->getLineStrings()));
+        $ewkb = pack('L', count($multiLineString->getLineStrings()));
         foreach ($multiLineString->getLineStrings() as $lineString) {
-            $wkb .= $this->convert($lineString);
+            $ewkb .= $this->executeStrategy($lineString);
         }
 
-        return $wkb;
+        return $ewkb;
     }
 
     /**
      * Write a multipoint.
      *
-     * @param MultiPointInterface $multiPoint the multipoint to write
+     * @param MultiPointInterface $multiPoint the multi point to write
      *
-     * @return string a binary string representing the multipoint
-     *
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
+     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiPoint(MultiPointInterface $multiPoint): string
     {
-        $wkb = pack('L', count($multiPoint->getPoints()));
-
+        $ewkb = pack('L', count($multiPoint->getPoints()));
         foreach ($multiPoint->getPoints() as $point) {
-            $wkb .= $this->convert($point);
+            $ewkb .= $this->executeStrategy($point);
         }
 
-        return $wkb;
+        return $ewkb;
     }
 
     /**
-     * Write a multipolygon.
+     * Write a multi polygon.
      *
-     * @param MultiPolygonInterface $multiPolygon the multipolygon to write
+     * @param MultiPolygonInterface $multiPolygon the multi polygon to write
      *
-     * @return string a binary string representing the multipolygon
-     *
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
+     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiPolygon(MultiPolygonInterface $multiPolygon): string
     {
-        $wkb = pack('L', count($multiPolygon->getPolygons()));
+        $ewkb = pack('L', count($multiPolygon->getPolygons()));
         foreach ($multiPolygon->getPolygons() as $polygon) {
-            $wkb .= $this->convert($polygon);
+            $ewkb .= $this->executeStrategy($polygon);
         }
 
-        return $wkb;
+        return $ewkb;
     }
 
     /**
-     * Write a point.
+     * Write coordinates of a point.
      *
      * @param PointInterface $point the point to write
-     *
-     * @return string a binary string representing the point
      */
     private function writePoint(PointInterface $point): string
     {
@@ -185,29 +181,36 @@ class WkbAdapter implements AdapterInterface
     }
 
     /**
-     * Write a polygon.
+     * Write number of rings then coordinates of a polygon.
      *
      * @param PolygonInterface $polygon the polygon to write
-     *
-     * @return string a binary string representing the polygon
      */
     private function writePolygon(PolygonInterface $polygon): string
     {
-        $wkb = pack('L', count($polygon->getRings()));
+        $ewkb = pack('L', count($polygon->getRings()));
+        $rings = $polygon->getRings();
 
-        foreach ($polygon->getRings() as $ring) {
-            $wkb .= $this->writeLineString($ring);
+        foreach ($rings as $ring) {
+            $ewkb .= $this->writeLineString($ring);
         }
 
-        return $wkb;
+        return $ewkb;
+    }
+
+    /**
+     * Write the SRID.
+     *
+     * @param SpatialInterface $spatial the spatial interface to convert
+     */
+    private function writeSrid(SpatialInterface $spatial): string
+    {
+        return pack('L', $spatial->getSrid() ?? 0);
     }
 
     /**
      * Write the type.
      *
-     * @param SpatialInterface $spatial the spatial interface to write
-     *
-     * @return string a binary string representing the type
+     * @param SpatialInterface $spatial the spatial interface to convert
      *
      * @throws UnsupportedSpatialTypeException when the spatial type is not supported
      */
@@ -221,7 +224,21 @@ class WkbAdapter implements AdapterInterface
             SpatialInterface::MULTILINESTRING => pack('L', 5),
             SpatialInterface::MULTIPOLYGON => pack('L', 6),
             // TODO GEOMETRYCOLLECTION pack 7
-            default => throw new UnsupportedSpatialTypeException(sprintf('WKB adapter does not support spatial type %s', $spatial->getType()))
+            default => throw new UnsupportedSpatialTypeException($spatial->getType()),
         };
+    }
+
+    /**
+     * Write the type and dimension.
+     * Important: longitude/doctrine-spatial does not support Z and M dimensions, yet.
+     *
+     * @param SpatialInterface $spatial the spatial interface to convert
+     *
+     * @throws UnsupportedSpatialTypeException when the spatial type is not supported
+     */
+    private function writeTypeAndDimension(SpatialInterface $spatial): string
+    {
+        // Version 5.0.2 doctrine/spatial does not supports Z and M, yet.
+        return $this->writeType($spatial) | pack('L', pow(2, 29));
     }
 }

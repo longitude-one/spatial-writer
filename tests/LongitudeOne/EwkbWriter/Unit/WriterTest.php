@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter\Unit;
 
-use LongitudeOne\EwkbWriter\Strategy\MySQLAdapter;
-use LongitudeOne\EwkbWriter\Strategy\WkbAdapter;
+use LongitudeOne\EwkbWriter\Strategy\MySQLBinaryStrategy;
+use LongitudeOne\EwkbWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\EwkbWriter\Writer;
 use LongitudeOne\Spatial\PHP\Types\Geometry\Point;
 use PHPUnit\Framework\TestCase;
@@ -30,29 +30,29 @@ use PHPUnit\Framework\TestCase;
 class WriterTest extends TestCase
 {
     /**
-     * Test the binary writer with a mysql adapter.
+     * Test the binary writer with a mysql strategy.
      */
-    public function testBinaryWriterWithMysqlAdapter(): void
+    public function testBinaryWriterWithMysqlStrategy(): void
     {
-        $adapter = new MySQLAdapter();
-        $writer = new Writer($adapter);
+        $strategy = new MySQLBinaryStrategy();
+        $writer = new Writer($strategy);
         $point = (new Point(1, 2))->setSrid(4326);
         static::assertSame(
-            $adapter->convert($point),
+            $strategy->executeStrategy($point),
             $writer->convert($point)
         );
     }
 
     /**
-     * Test the binary writer with the Well-Known Binary adapter.
+     * Test the binary writer with the Well-Known Binary strategy.
      */
-    public function testBinaryWriterWithWkbAdapter(): void
+    public function testBinaryWriterWithWkbStrategy(): void
     {
-        $adapter = new WkbAdapter();
-        $writer = new Writer($adapter);
+        $strategy = new WkbBinaryStrategy();
+        $writer = new Writer($strategy);
         $point = (new Point(1, 2))->setSrid(4326);
         static::assertSame(
-            $adapter->convert($point),
+            $strategy->executeStrategy($point),
             $writer->convert($point)
         );
     }

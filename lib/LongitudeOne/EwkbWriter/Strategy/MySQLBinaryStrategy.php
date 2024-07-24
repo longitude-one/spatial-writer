@@ -33,7 +33,7 @@ use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
  *
  * This class is responsible for converting a spatial interface to the internal MySQL storage format.
  */
-class MySQLAdapter implements AdapterInterface
+class MySQLBinaryStrategy implements BinaryStrategyInterface
 {
     /**
      * Convert a spatial interface to the internal MySQL storage format.
@@ -45,7 +45,7 @@ class MySQLAdapter implements AdapterInterface
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
-    public function convert(SpatialInterface $spatial): string
+    public function executeStrategy(SpatialInterface $spatial): string
     {
         $ims = $this->writeSrid($spatial);
         $ims .= $this->writeFirstByte();

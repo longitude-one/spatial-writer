@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Tests\Unit\Adapter;
+namespace LongitudeOne\EwkbWriter\Tests\Unit\Strategy;
 
 use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException;
-use LongitudeOne\EwkbWriter\Strategy\EwkbAdapter;
+use LongitudeOne\EwkbWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\Spatial\Exception\InvalidValueException;
 use LongitudeOne\Spatial\PHP\Types\Geometry\LineString;
 use LongitudeOne\Spatial\PHP\Types\Geometry\MultiLineString;
@@ -39,17 +39,17 @@ use PHPUnit\Framework\TestCase;
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Strategy\EwkbAdapter
+ * @covers \LongitudeOne\EwkbWriter\Strategy\WkbBinaryStrategy
  */
-class EwkbAdapterTest extends TestCase
+class WkbStrategyTest extends TestCase
 {
     private const SRID_XY = 7035;
     private const SRID_YX = 4326;
 
     /**
-     * WkbAdapter instance.
+     * WkbBinaryStrategy instance.
      */
-    private EwkbAdapter $adapter;
+    private WkbBinaryStrategy $strategy;
 
     /**
      * Set up the test.
@@ -57,7 +57,7 @@ class EwkbAdapterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->adapter = new EwkbAdapter();
+        $this->strategy = new WkbBinaryStrategy();
     }
 
     /**
@@ -65,7 +65,7 @@ class EwkbAdapterTest extends TestCase
      */
     protected function tearDown(): void
     {
-        unset($this->adapter);
+        unset($this->strategy);
         parent::tearDown();
     }
 
@@ -97,13 +97,13 @@ class EwkbAdapterTest extends TestCase
         // Let's try a line-string with a YX SRID
         yield 'SRID=4326;LINESTRING(0 0, 1 1)' => [
             (new LineString([$origin, $destination]))->setSrid(self::SRID_YX),
-            '0102000020E61000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
+            '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
         ];
 
         // Let's try a line-string with a XY SRID
         yield 'SRID=7035;LINESTRING(0 0, 1 1)' => [
             (new LineString([$origin, $destination]))->setSrid(self::SRID_XY),
-            '01020000207B1B00000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
+            '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F',
         ];
     }
 
@@ -214,7 +214,7 @@ class EwkbAdapterTest extends TestCase
         // Let's add a SRID to the point
         yield 'SRID=4326;GEOMETRIC POINT(0 0)' => [
             (new GeometricPoint(0, 0))->setSrid(self::SRID_YX),
-            '0101000020E610000000000000000000000000000000000000',
+            '010100000000000000000000000000000000000000',
         ];
 
         // Let's check a point with X and Y different from 0
@@ -238,13 +238,13 @@ class EwkbAdapterTest extends TestCase
         // Let's check that the SRID YX does NOT affect the result
         yield 'SRID=4326;POINT(1 -1)' => [
             (new GeometricPoint(1, -1))->setSrid(self::SRID_YX),
-            '0101000020E6100000000000000000F03F000000000000F0BF',
+            '0101000000000000000000F03F000000000000F0BF',
         ];
 
         // Let's check that the SRID XY does NOT affect the result
         yield 'SRID=7035; POINT(1 -1)' => [
             (new GeometricPoint(1, -1))->setSrid(self::SRID_XY),
-            '01010000207B1B0000000000000000F03F000000000000F0BF',
+            '0101000000000000000000F03F000000000000F0BF',
         ];
     }
 
@@ -293,7 +293,7 @@ class EwkbAdapterTest extends TestCase
     #[DataProvider('lineStringProvider')]
     public function testLineString(LineStringInterface $lineString, string $expected): void
     {
-        static::assertSame(mb_strtolower($expected), bin2hex($this->adapter->convert($lineString)));
+        static::assertSame(mb_strtolower($expected), bin2hex($this->strategy->executeStrategy($lineString)));
     }
 
     /**
@@ -308,7 +308,7 @@ class EwkbAdapterTest extends TestCase
     #[DataProvider('multiLineStringProvider')]
     public function testMultiLineString(MultiLineStringInterface $multiLineString, string $expected): void
     {
-        static::assertSame(mb_strtolower($expected), bin2hex($this->adapter->convert($multiLineString)));
+        static::assertSame(mb_strtolower($expected), bin2hex($this->strategy->executeStrategy($multiLineString)));
     }
 
     /**
@@ -323,7 +323,7 @@ class EwkbAdapterTest extends TestCase
     #[DataProvider('multiPointProvider')]
     public function testMultiPoint(MultiPointInterface $multiPoint, string $expected): void
     {
-        static::assertSame(mb_strtolower($expected), bin2hex($this->adapter->convert($multiPoint)));
+        static::assertSame(mb_strtolower($expected), bin2hex($this->strategy->executeStrategy($multiPoint)));
     }
 
     /**
@@ -338,7 +338,7 @@ class EwkbAdapterTest extends TestCase
     #[DataProvider('multiPolygonProvider')]
     public function testMultiPolygon(MultiPolygonInterface $multiPolygon, string $expected): void
     {
-        static::assertSame(mb_strtolower($expected), bin2hex($this->adapter->convert($multiPolygon)));
+        static::assertSame(mb_strtolower($expected), bin2hex($this->strategy->executeStrategy($multiPolygon)));
     }
 
     /**
@@ -353,7 +353,7 @@ class EwkbAdapterTest extends TestCase
     #[DataProvider('pointProvider')]
     public function testPoint(PointInterface $point, string $expected): void
     {
-        static::assertSame(mb_strtolower($expected), bin2hex($this->adapter->convert($point)));
+        static::assertSame(mb_strtolower($expected), bin2hex($this->strategy->executeStrategy($point)));
     }
 
     /**
@@ -368,6 +368,6 @@ class EwkbAdapterTest extends TestCase
     #[DataProvider('polygonProvider')]
     public function testPolygon(PolygonInterface $polygon, string $expected): void
     {
-        static::assertSame(mb_strtolower($expected), bin2hex($this->adapter->convert($polygon)));
+        static::assertSame(mb_strtolower($expected), bin2hex($this->strategy->executeStrategy($polygon)));
     }
 }

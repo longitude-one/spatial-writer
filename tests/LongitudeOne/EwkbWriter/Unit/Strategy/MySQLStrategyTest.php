@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\EwkbWriter\Tests\Unit\Adapter;
+namespace LongitudeOne\EwkbWriter\Tests\Unit\Strategy;
 
-use LongitudeOne\EwkbWriter\Strategy\MySQLAdapter;
+use LongitudeOne\EwkbWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\Spatial\Exception\InvalidValueException;
 use LongitudeOne\Spatial\PHP\Types\Geometry\LineString;
 use LongitudeOne\Spatial\PHP\Types\Geometry\MultiLineString;
@@ -34,37 +34,37 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * MySQLAdapterTest class.
+ * MySQLStrategyTest class.
  *
  * The result values are checked with this kind of SQL command:
  * > select HEX(ST_GeomFromText('POINT(0 0)', 4326))
  *
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Strategy\MySQLAdapter
+ * @covers \LongitudeOne\EwkbWriter\Strategy\MySQLBinaryStrategy
  */
-class MySQLAdapterTest extends TestCase
+class MySQLStrategyTest extends TestCase
 {
     /**
-     * @var MySQLAdapter the MySQL adapter to test
+     * @var MySQLBinaryStrategy the MySQL strategy to test
      */
-    private MySQLAdapter $adapter;
+    private MySQLBinaryStrategy $strategy;
 
     /**
-     * Set up the MySQL adapter.
+     * Set up the MySQL strategy.
      */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->adapter = new MySQLAdapter();
+        $this->strategy = new MySQLBinaryStrategy();
     }
 
     /**
-     * Tear down the MySQL adapter.
+     * Tear down the MySQL strategy.
      */
     protected function tearDown(): void
     {
-        unset($this->adapter);
+        unset($this->strategy);
         parent::tearDown();
     }
 
@@ -228,7 +228,7 @@ class MySQLAdapterTest extends TestCase
     }
 
     /**
-     * Let's check the MySQL adapter with a linestring.
+     * Let's check the MySQL strategy with a linestring.
      *
      * @param LineStringInterface $lineString the linestring to convert
      * @param string              $expected   the expected result in hexadecimal format
@@ -236,11 +236,11 @@ class MySQLAdapterTest extends TestCase
     #[DataProvider('lineStringProvider')]
     public function testLineString(LineStringInterface $lineString, string $expected): void
     {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->adapter->convert($lineString))));
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($lineString))));
     }
 
     /**
-     * Let's check the MySQL adapter with a multilinestring.
+     * Let's check the MySQL strategy with a multilinestring.
      *
      * @param MultiLineStringInterface $multiLineString the multilinestring to convert
      * @param string                   $expected        the expected result in hexadecimal format
@@ -248,11 +248,11 @@ class MySQLAdapterTest extends TestCase
     #[DataProvider('multiLineStringProvider')]
     public function testMultiLineString(MultiLineStringInterface $multiLineString, string $expected): void
     {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->adapter->convert($multiLineString))));
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiLineString))));
     }
 
     /**
-     * Let's check the MySQL adapter with a multipoint.
+     * Let's check the MySQL strategy with a multipoint.
      *
      * @param MultiPointInterface $multiPoint the multipoint to convert
      * @param string              $expected   the expected result in hexadecimal format
@@ -260,11 +260,11 @@ class MySQLAdapterTest extends TestCase
     #[DataProvider('multiPointProvider')]
     public function testMultiPoint(MultiPointInterface $multiPoint, string $expected): void
     {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->adapter->convert($multiPoint))));
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiPoint))));
     }
 
     /**
-     * Let's check the MySQL adapter with a multipolygon.
+     * Let's check the MySQL strategy with a multipolygon.
      *
      * @param MultiPolygonInterface $multiPolygon the multipolygon to convert
      * @param string                $expected     the expected result in hexadecimal format
@@ -272,11 +272,11 @@ class MySQLAdapterTest extends TestCase
     #[DataProvider('multiPolygonProvider')]
     public function testMultiPolygon(MultiPolygonInterface $multiPolygon, string $expected): void
     {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->adapter->convert($multiPolygon))));
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiPolygon))));
     }
 
     /**
-     * Let's check the MySQL adapter with a point.
+     * Let's check the MySQL strategy with a point.
      *
      * @param PointInterface $point    the point to convert
      * @param string         $expected the expected result in hexadecimal format
@@ -284,11 +284,11 @@ class MySQLAdapterTest extends TestCase
     #[DataProvider('pointProvider')]
     public function testPoint(PointInterface $point, string $expected): void
     {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->adapter->convert($point))));
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($point))));
     }
 
     /**
-     * Let's check the MySQL adapter with a polygon.
+     * Let's check the MySQL strategy with a polygon.
      *
      * @param PolygonInterface $polygon  the polygon to convert
      * @param string           $expected the expected result in hexadecimal format
@@ -296,6 +296,6 @@ class MySQLAdapterTest extends TestCase
     #[DataProvider('polygonProvider')]
     public function testPolygon(PolygonInterface $polygon, string $expected): void
     {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->adapter->convert($polygon))));
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($polygon))));
     }
 }

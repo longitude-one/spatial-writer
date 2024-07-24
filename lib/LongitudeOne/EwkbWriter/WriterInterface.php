@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter;
 
-use LongitudeOne\EwkbWriter\Strategy\AdapterInterface;
+use LongitudeOne\EwkbWriter\Strategy\BinaryStrategyInterface;
 use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
 
 interface WriterInterface
@@ -24,9 +24,9 @@ interface WriterInterface
     /**
      * Writer constructor.
      *
-     * @param AdapterInterface $adapter the strategy to use
+     * @param BinaryStrategyInterface $strategy the strategy to use
      */
-    public function __construct(AdapterInterface $adapter);
+    public function __construct(BinaryStrategyInterface $strategy);
 
     /**
      * Convert a spatial interface to another representation.
@@ -36,4 +36,20 @@ interface WriterInterface
      * @return string a string representing the spatial interface in the implemented representation
      */
     public function convert(SpatialInterface $spatial): string;
+
+    /**
+     * Get the current strategy.
+     *
+     * @return BinaryStrategyInterface the strategy to use
+     */
+    public function getStrategy(): BinaryStrategyInterface;
+
+    /**
+     * Set the strategy to use.
+     *
+     * @param BinaryStrategyInterface $strategy the strategy to use
+     *
+     * @return static the current instance
+     */
+    public function setStrategy(BinaryStrategyInterface $strategy): self;
 }
