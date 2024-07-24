@@ -16,12 +16,11 @@ Feel free to provide any other strategy to convert spatial interfaces to binary 
 ![Minimum PHP Version](https://img.shields.io/packagist/php-v/longitude-one/binary-writer.svg?maxAge=3600)
 [![Packagist License](https://img.shields.io/packagist/l/longitude-one/binary-writer)](https://github.com/longitude-one/binary-writer/blob/main/LICENSE)
 
-[![Last integration test](https://github.com/longitude-one/binary-writer/actions/workflows/full.yaml/badge.svg)](https://github.com/longitude-one/binary-writer/actions/workflows/full.yaml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/92b245a85ab4fbaca5d2/maintainability)](https://codeclimate.com/github/longitude-one/binary-writer/maintainability)
+[![Last integration test](https://github.com/longitude-one/binary-writer/actions/workflows/php-oldest.yaml/badge.svg)](https://github.com/longitude-one/binary-writer/actions/workflows/php-oldest.yaml)
+[![Maintainability](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/maintainability)](https://codeclimate.com/github/longitude-one/binary-writer/maintainability)
 [![Downloads](https://img.shields.io/packagist/dm/longitude-one/binary-writer.svg)](https://packagist.org/packages/longitude-one/binary-writer)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/92b245a85ab4fbaca5d2/test_coverage)](https://codeclimate.com/github/longitude-one/binary-writer/test_coverage)
-[![Documentation Status](https://readthedocs.org/projects/lo-binary-writer/badge/?version=main)](https://lo-binary-writer.readthedocs.io/en/main/?badge=main)
-
+[![Test Coverage](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/test_coverage)](https://codeclimate.com/github/longitude-one/binary-writer/test_coverage)    
+    
 
 ## Installation
 

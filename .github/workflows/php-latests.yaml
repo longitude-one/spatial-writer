@@ -1,0 +1,53 @@
+name: Tests with 8.2 and 8.3 PHP versions
+on:
+    workflow_run:
+        workflows: ["Full tests with oldest PHP version"]
+        types:
+            - completed
+
+permissions:
+    contents: read
+    pull-requests: read
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php: [8.2, 8.3]
+            fail-fast: false
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP ${{ matrix.php }}
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: pcov
+                  tools: composer:v2
+
+            - name: Echo PHP version
+              run: php -v
+
+            - name: Validate composer.json
+              run: composer validate
+
+            - name: Create the composer.lock for the cache key
+              run: composer update --no-install
+
+            - name: Restore cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: vendor/
+                  key: ${{ format('{0}-composer-php{1}-{2}', runner.os, matrix.php, hashFiles('composer.lock')) }}
+                  restore-keys: ${{ format('{0}-composer-php{1}-', runner.os, matrix.php) }}
+
+            - name: Install dependencies
+              run: composer install -vvv
+
+            - name: List libraries
+              run: composer show
+
+            - name: Run test suite
+              run: vendor/bin/phpunit
