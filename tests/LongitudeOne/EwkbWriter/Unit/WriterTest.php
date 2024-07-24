@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter\Unit;
 
-use LongitudeOne\EwkbWriter\Adapter\MySQLAdapter;
-use LongitudeOne\EwkbWriter\Adapter\WkbAdapter;
+use LongitudeOne\EwkbWriter\Strategy\MySQLAdapter;
+use LongitudeOne\EwkbWriter\Strategy\WkbAdapter;
 use LongitudeOne\EwkbWriter\Writer;
 use LongitudeOne\Spatial\PHP\Types\Geometry\Point;
 use PHPUnit\Framework\TestCase;

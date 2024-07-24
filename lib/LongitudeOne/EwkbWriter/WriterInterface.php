@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter;
 
-use LongitudeOne\EwkbWriter\Adapter\AdapterInterface;
+use LongitudeOne\EwkbWriter\Strategy\AdapterInterface;
 use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
 
 interface WriterInterface

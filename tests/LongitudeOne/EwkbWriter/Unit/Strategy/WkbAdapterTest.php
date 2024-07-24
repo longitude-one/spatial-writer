@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter\Tests\Unit\Adapter;
 
-use LongitudeOne\EwkbWriter\Adapter\WkbAdapter;
 use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\EwkbWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\EwkbWriter\Strategy\WkbAdapter;
 use LongitudeOne\Spatial\Exception\InvalidValueException;
 use LongitudeOne\Spatial\PHP\Types\Geometry\LineString;
 use LongitudeOne\Spatial\PHP\Types\Geometry\MultiLineString;
@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Adapter\WkbAdapter
+ * @covers \LongitudeOne\EwkbWriter\Strategy\WkbAdapter
  */
 class WkbAdapterTest extends TestCase
 {

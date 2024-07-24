@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace LongitudeOne\EwkbWriter\Tests\Unit\Adapter;
 
-use LongitudeOne\EwkbWriter\Adapter\MySQLAdapter;
+use LongitudeOne\EwkbWriter\Strategy\MySQLAdapter;
 use LongitudeOne\Spatial\Exception\InvalidValueException;
 use LongitudeOne\Spatial\PHP\Types\Geometry\LineString;
 use LongitudeOne\Spatial\PHP\Types\Geometry\MultiLineString;
@@ -41,7 +41,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @internal
  *
- * @covers \LongitudeOne\EwkbWriter\Adapter\MySQLAdapter
+ * @covers \LongitudeOne\EwkbWriter\Strategy\MySQLAdapter
  */
 class MySQLAdapterTest extends TestCase
 {
