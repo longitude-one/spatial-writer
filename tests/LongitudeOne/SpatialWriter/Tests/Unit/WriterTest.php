@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Tests\Unit;
 
+use LongitudeOne\SpatialTypes\Types\Geometry\Point;
 use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\SpatialWriter\Writer;
-use LongitudeOne\SpatialTypes\Types\Geometry\Point;
 use PHPUnit\Framework\TestCase;
 
 /**

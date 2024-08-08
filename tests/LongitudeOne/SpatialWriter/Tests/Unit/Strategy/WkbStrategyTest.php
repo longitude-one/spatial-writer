@@ -16,9 +16,6 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy;
 
-use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
-use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\SpatialTypes\Exception\SpatialTypeExceptionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
@@ -33,6 +30,9 @@ use LongitudeOne\SpatialTypes\Types\Geometry\MultiPolygon;
 use LongitudeOne\SpatialTypes\Types\Geometry\Point as GeographicPoint;
 use LongitudeOne\SpatialTypes\Types\Geometry\Point as GeometricPoint;
 use LongitudeOne\SpatialTypes\Types\Geometry\Polygon;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

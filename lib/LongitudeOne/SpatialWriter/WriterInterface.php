@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter;
 
-use LongitudeOne\SpatialWriter\Strategy\BinaryStrategyInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
+use LongitudeOne\SpatialWriter\Strategy\BinaryStrategyInterface;
 
 interface WriterInterface
 {

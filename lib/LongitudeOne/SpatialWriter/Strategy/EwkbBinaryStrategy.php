@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Strategy;
 
-use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\SpatialTypes\Enum\TypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
@@ -26,6 +24,8 @@ use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 
 /**
  * Strategy to convert a spatial interface to its extended well-known binary representation.
