@@ -4,7 +4,7 @@
          cacheDirectory=".phpunit-cache">
     <testsuites>
         <testsuite name="ewkb-writer">
-            <directory>tests/LongitudeOne/BinaryWriter/Unit</directory>
+            <directory>tests/LongitudeOne/BinaryWriter/Tests</directory>
         </testsuite>
     </testsuites>
     <source>

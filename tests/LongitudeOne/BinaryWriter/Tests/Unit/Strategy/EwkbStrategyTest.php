@@ -19,7 +19,7 @@ namespace LongitudeOne\BinaryWriter\Tests\Unit\Strategy;
 use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\BinaryWriter\Strategy\EwkbBinaryStrategy;
-use LongitudeOne\SpatialTypes\Exception\InvalidValueException;
+use LongitudeOne\SpatialTypes\Exception\SpatialTypeExceptionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
@@ -73,7 +73,7 @@ class EwkbStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: LineStringInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException This should not happen, as the data provider only provides valid line-strings
+     * @throws SpatialTypeExceptionInterface This should not happen, as the data provider only provides valid line-strings
      */
     public static function lineStringProvider(): \Generator
     {
@@ -111,7 +111,7 @@ class EwkbStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: MultiLineStringInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException This should not happen, as the data provider only provides valid multi-line-strings
+     * @throws SpatialTypeExceptionInterface This should not happen, as the data provider only provides valid multi-line-strings
      */
     public static function multiLineStringProvider(): \Generator
     {
@@ -141,7 +141,7 @@ class EwkbStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: MultiPointInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException This should not happen, as the data provider only provides valid multi-points
+     * @throws SpatialTypeExceptionInterface This should not happen, as the data provider only provides valid multi-points
      */
     public static function multiPointProvider(): \Generator
     {
@@ -161,7 +161,7 @@ class EwkbStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: MultiPolygonInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException This should not happen, as the data provider only provides valid multi-polygons
+     * @throws SpatialTypeExceptionInterface This should not happen, as the data provider only provides valid multi-polygons
      */
     public static function multiPolygonProvider(): \Generator
     {
@@ -194,7 +194,7 @@ class EwkbStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: PointInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException This should not happen, as the data provider only provides valid points
+     * @throws SpatialTypeExceptionInterface This should not happen, as the data provider only provides valid points
      */
     public static function pointProvider(): \Generator
     {
@@ -252,7 +252,7 @@ class EwkbStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: PolygonInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException This should not happen, as the data provider only provides valid polygons
+     * @throws SpatialTypeExceptionInterface This should not happen, as the data provider only provides valid polygons
      */
     public static function polygonProvider(): \Generator
     {
