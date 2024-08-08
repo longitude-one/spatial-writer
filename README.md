@@ -1,30 +1,30 @@
-# Binary-writer
+# Spatial Writer
 
-The writer module provide an interface to convert any SpatialInterfaces to other binary formats.
+The writer module provide an interface to convert any SpatialInterfaces to other formats.
 
-This library provide three strategies to convert spatial interfaces to binary format:
+This library provide three strategies to convert spatial interfaces to other formats:
  * A strategy to convert any spatial interfaces to extended well known binary (EWKB).
  * Another one to convert any spatial interfaces to well known binary (WKB).
  * A last one to convert any spatial interfaces to the internal MySQL storage format.
 
-Feel free to provide any other strategy to convert spatial interfaces to binary format.
+Feel free to provide any other strategy to convert spatial interfaces to other formats.
 
 
 ## Current status
-![longitude-one/binary--writer](https://img.shields.io/badge/longitude--one-binary--writer-blue)
-![Stable release](https://img.shields.io/github/v/release/longitude-one/binary-writer)
-![Minimum PHP Version](https://img.shields.io/packagist/php-v/longitude-one/binary-writer.svg?maxAge=3600)
-[![Packagist License](https://img.shields.io/packagist/l/longitude-one/binary-writer)](https://github.com/longitude-one/binary-writer/blob/main/LICENSE)
+![longitude-one/spatial--writer](https://img.shields.io/badge/longitude--one-spatial--writer-blue)
+![Stable release](https://img.shields.io/github/v/release/longitude-one/spatial-writer)
+![Minimum PHP Version](https://img.shields.io/packagist/php-v/longitude-one/spatial-writer.svg?maxAge=3600)
+[![Packagist License](https://img.shields.io/packagist/l/longitude-one/spatial-writer)](https://github.com/longitude-one/spatial-writer/blob/main/LICENSE)
 
-[![Last integration test](https://github.com/longitude-one/binary-writer/actions/workflows/php-oldest.yaml/badge.svg)](https://github.com/longitude-one/binary-writer/actions/workflows/php-oldest.yaml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/maintainability)](https://codeclimate.com/github/longitude-one/binary-writer/maintainability)
-[![Downloads](https://img.shields.io/packagist/dm/longitude-one/binary-writer.svg)](https://packagist.org/packages/longitude-one/binary-writer)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/test_coverage)](https://codeclimate.com/github/longitude-one/binary-writer/test_coverage)    
+[![Last integration test](https://github.com/longitude-one/spatial-writer/actions/workflows/php-oldest.yaml/badge.svg)](https://github.com/longitude-one/spatial-writer/actions/workflows/php-oldest.yaml)
+[![Maintainability](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/maintainability)](https://codeclimate.com/github/longitude-one/spatial-writer/maintainability)
+[![Downloads](https://img.shields.io/packagist/dm/longitude-one/spatial-writer.svg)](https://packagist.org/packages/longitude-one/spatial-writer)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/test_coverage)](https://codeclimate.com/github/longitude-one/spatial-writer/test_coverage)    
     
 
 ## Installation
 
 ```bash
-composer require longitude-one/binary-writer
+composer require longitude-one/spatial-writer
 ```
 
