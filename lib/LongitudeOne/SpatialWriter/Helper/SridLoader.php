@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Helper;
+namespace LongitudeOne\SpatialWriter\Helper;
 
-use LongitudeOne\BinaryWriter\Exception\UnavailableResourceException;
+use LongitudeOne\SpatialWriter\Exception\UnavailableResourceException;
 
 class SridLoader
 {

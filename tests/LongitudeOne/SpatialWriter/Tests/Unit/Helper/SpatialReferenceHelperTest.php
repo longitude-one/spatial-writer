@@ -14,19 +14,19 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Tests\Unit\Helper;
+namespace LongitudeOne\SpatialWriter\Tests\Unit\Helper;
 
-use LongitudeOne\BinaryWriter\Helper\AxisOrderEnum;
-use LongitudeOne\BinaryWriter\Helper\SpatialReferenceHelper;
+use LongitudeOne\SpatialWriter\Helper\AxisOrderEnum;
+use LongitudeOne\SpatialWriter\Helper\SpatialReferenceHelper;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\BinaryWriter\Helper\AxisOrderEnum
- * @covers \LongitudeOne\BinaryWriter\Helper\SpatialReferenceHelper
- * @covers \LongitudeOne\BinaryWriter\Helper\SridLoader
+ * @covers \LongitudeOne\SpatialWriter\Helper\AxisOrderEnum
+ * @covers \LongitudeOne\SpatialWriter\Helper\SpatialReferenceHelper
+ * @covers \LongitudeOne\SpatialWriter\Helper\SridLoader
  */
 class SpatialReferenceHelperTest extends TestCase
 {

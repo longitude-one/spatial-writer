@@ -14,18 +14,18 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Tests\Unit;
+namespace LongitudeOne\SpatialWriter\Tests\Unit;
 
-use LongitudeOne\BinaryWriter\Strategy\MySQLBinaryStrategy;
-use LongitudeOne\BinaryWriter\Strategy\WkbBinaryStrategy;
-use LongitudeOne\BinaryWriter\Writer;
+use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
+use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
+use LongitudeOne\SpatialWriter\Writer;
 use LongitudeOne\SpatialTypes\Types\Geometry\Point;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\BinaryWriter\Writer
+ * @covers \LongitudeOne\SpatialWriter\Writer
  */
 class WriterTest extends TestCase
 {

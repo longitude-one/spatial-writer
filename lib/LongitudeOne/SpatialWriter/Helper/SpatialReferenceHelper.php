@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Helper;
+namespace LongitudeOne\SpatialWriter\Helper;
 
 /**
  * Each Spatial Reference System (SRS) is defined by its SRID and its AXIS ORDER for Geography.

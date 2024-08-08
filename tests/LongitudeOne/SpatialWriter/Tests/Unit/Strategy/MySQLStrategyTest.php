@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Tests\Unit\Strategy;
+namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy;
 
-use LongitudeOne\BinaryWriter\Strategy\MySQLBinaryStrategy;
+use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\SpatialTypes\Exception\SpatialTypeExceptionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
@@ -41,7 +41,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @internal
  *
- * @covers \LongitudeOne\BinaryWriter\Strategy\MySQLBinaryStrategy
+ * @covers \LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy
  */
 class MySQLStrategyTest extends TestCase
 {

@@ -14,10 +14,10 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Strategy;
+namespace LongitudeOne\SpatialWriter\Strategy;
 
-use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\SpatialTypes\Enum\TypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;

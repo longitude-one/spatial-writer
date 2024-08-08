@@ -14,15 +14,15 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Exception;
+namespace LongitudeOne\SpatialWriter\Exception;
 
 /**
- * This exception is thrown when the spatial interface is not supported.
+ * This exception is thrown when the spatial type is not supported.
  *
  * It should not happen, but it could happen if spatial-interface library is updated.
  *
  * @internal
  */
-class UnsupportedSpatialInterfaceException extends \Exception implements ExceptionInterface
+class UnsupportedSpatialTypeException extends \Exception implements ExceptionInterface
 {
 }

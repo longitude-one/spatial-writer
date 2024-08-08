@@ -27,8 +27,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
-            "LongitudeOne\\BinaryWriter": "lib/",
-            "LongitudeOne\\BinaryWriter\\Tests": "tests/"
+            "LongitudeOne\\SpatialWriter": "lib/",
+            "LongitudeOne\\SpatialWriter\\Tests": "tests/"
         }
     }
 }

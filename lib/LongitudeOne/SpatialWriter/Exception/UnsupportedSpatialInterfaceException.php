@@ -14,10 +14,15 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Helper;
+namespace LongitudeOne\SpatialWriter\Exception;
 
-enum AxisOrderEnum
+/**
+ * This exception is thrown when the spatial interface is not supported.
+ *
+ * It should not happen, but it could happen if spatial-interface library is updated.
+ *
+ * @internal
+ */
+class UnsupportedSpatialInterfaceException extends \Exception implements ExceptionInterface
 {
-    case XY;
-    case YX;
 }

@@ -14,15 +14,15 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Tests\Unit\Helper;
+namespace LongitudeOne\SpatialWriter\Tests\Unit\Helper;
 
-use LongitudeOne\BinaryWriter\Helper\SridLoader;
+use LongitudeOne\SpatialWriter\Helper\SridLoader;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\BinaryWriter\Helper\SridLoader
+ * @covers \LongitudeOne\SpatialWriter\Helper\SridLoader
  */
 class SridLoaderTest extends TestCase
 {

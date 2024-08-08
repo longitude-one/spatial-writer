@@ -14,23 +14,23 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Tests\Unit\Exception;
+namespace LongitudeOne\SpatialWriter\Tests\Unit\Exception;
 
-use LongitudeOne\BinaryWriter\Exception\ExceptionInterface;
-use LongitudeOne\BinaryWriter\Exception\UnavailableResourceException;
-use LongitudeOne\BinaryWriter\Exception\UnsupportedDimensionException;
-use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
+use LongitudeOne\SpatialWriter\Exception\UnavailableResourceException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
  *
- * @covers \LongitudeOne\BinaryWriter\Exception\UnavailableResourceException
- * @covers \LongitudeOne\BinaryWriter\Exception\UnsupportedDimensionException
- * @covers \LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException
- * @covers \LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException
+ * @covers \LongitudeOne\SpatialWriter\Exception\UnavailableResourceException
+ * @covers \LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException
+ * @covers \LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException
+ * @covers \LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException
  */
 class ExceptionTest extends TestCase
 {

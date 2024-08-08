@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Exception;
+namespace LongitudeOne\SpatialWriter\Exception;
 
 class UnavailableResourceException extends \RuntimeException implements ExceptionInterface
 {
