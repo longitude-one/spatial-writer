@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\BinaryWriter;
 
 use LongitudeOne\BinaryWriter\Strategy\BinaryStrategyInterface;
-use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
+use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 
 /**
  * Writer class.

@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace LongitudeOne\BinaryWriter\Strategy;
 
-use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
+use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 
 /**
  * This interface implements the strategy pattern.

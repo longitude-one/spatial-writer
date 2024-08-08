@@ -17,19 +17,19 @@ declare(strict_types=1);
 namespace LongitudeOne\BinaryWriter\Tests\Unit\Strategy;
 
 use LongitudeOne\BinaryWriter\Strategy\MySQLBinaryStrategy;
-use LongitudeOne\Spatial\Exception\InvalidValueException;
-use LongitudeOne\Spatial\PHP\Types\Geometry\LineString;
-use LongitudeOne\Spatial\PHP\Types\Geometry\MultiLineString;
-use LongitudeOne\Spatial\PHP\Types\Geometry\MultiPoint;
-use LongitudeOne\Spatial\PHP\Types\Geometry\MultiPolygon;
-use LongitudeOne\Spatial\PHP\Types\Geometry\Point;
-use LongitudeOne\Spatial\PHP\Types\Geometry\Polygon;
-use LongitudeOne\Spatial\PHP\Types\LineStringInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiLineStringInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiPointInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiPolygonInterface;
-use LongitudeOne\Spatial\PHP\Types\PointInterface;
-use LongitudeOne\Spatial\PHP\Types\PolygonInterface;
+use LongitudeOne\SpatialTypes\Exception\SpatialTypeExceptionInterface;
+use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
+use LongitudeOne\SpatialTypes\Types\Geometry\LineString;
+use LongitudeOne\SpatialTypes\Types\Geometry\MultiLineString;
+use LongitudeOne\SpatialTypes\Types\Geometry\MultiPoint;
+use LongitudeOne\SpatialTypes\Types\Geometry\MultiPolygon;
+use LongitudeOne\SpatialTypes\Types\Geometry\Point;
+use LongitudeOne\SpatialTypes\Types\Geometry\Polygon;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -73,7 +73,7 @@ class MySQLStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: LineStringInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException this won't happen because provided coordinates are exact
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
      */
     public static function lineStringProvider(): \Generator
     {
@@ -101,7 +101,7 @@ class MySQLStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: MultiLineStringInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException this won't happen because provided coordinates are exact
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
      */
     public static function multiLineStringProvider(): \Generator
     {
@@ -120,7 +120,7 @@ class MySQLStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: MultiPointInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException this won't happen because provided coordinates are exact
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
      */
     public static function multiPointProvider(): \Generator
     {
@@ -136,7 +136,7 @@ class MySQLStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: MultiPolygonInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException this won't happen because provided coordinates are exact
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
      */
     public static function multiPolygonProvider(): \Generator
     {
@@ -155,7 +155,7 @@ class MySQLStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: PointInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException this won't happen because provided coordinates are exact
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
      */
     public static function pointProvider(): \Generator
     {
@@ -198,7 +198,7 @@ class MySQLStrategyTest extends TestCase
      *
      * @return \Generator<string, array{0: PolygonInterface, 1: string}, null, void>
      *
-     * @throws InvalidValueException this won't happen because provided coordinates are exact
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
      */
     public static function polygonProvider(): \Generator
     {

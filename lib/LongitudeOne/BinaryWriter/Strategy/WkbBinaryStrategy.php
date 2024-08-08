@@ -18,13 +18,14 @@ namespace LongitudeOne\BinaryWriter\Strategy;
 
 use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
-use LongitudeOne\Spatial\PHP\Types\LineStringInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiLineStringInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiPointInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiPolygonInterface;
-use LongitudeOne\Spatial\PHP\Types\PointInterface;
-use LongitudeOne\Spatial\PHP\Types\PolygonInterface;
-use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
+use LongitudeOne\SpatialTypes\Enum\TypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 
 /**
  * Well-Known binary adapter.
@@ -214,13 +215,13 @@ class WkbBinaryStrategy implements BinaryStrategyInterface
     private function writeType(SpatialInterface $spatial): string
     {
         return match ($spatial->getType()) {
-            SpatialInterface::POINT => pack('L', 1),
-            SpatialInterface::LINESTRING => pack('L', 2),
-            SpatialInterface::POLYGON => pack('L', 3),
-            SpatialInterface::MULTIPOINT => pack('L', 4),
-            SpatialInterface::MULTILINESTRING => pack('L', 5),
-            SpatialInterface::MULTIPOLYGON => pack('L', 6),
-            // TODO GEOMETRYCOLLECTION pack 7
+            TypeEnum::POINT->value => pack('L', 1),
+            TypeEnum::LINESTRING->value => pack('L', 2),
+            TypeEnum::POLYGON->value => pack('L', 3),
+            TypeEnum::MULTIPOINT->value => pack('L', 4),
+            TypeEnum::MULTILINESTRING->value => pack('L', 5),
+            TypeEnum::MULTIPOLYGON->value => pack('L', 6),
+            TypeEnum::COLLECTION->value => pack('L', 7),
             default => throw new UnsupportedSpatialTypeException(sprintf('WKB adapter does not support spatial type %s', $spatial->getType()))
         };
     }
