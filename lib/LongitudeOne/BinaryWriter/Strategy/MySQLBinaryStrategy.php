@@ -20,13 +20,14 @@ use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\BinaryWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\BinaryWriter\Helper\AxisOrderEnum;
 use LongitudeOne\BinaryWriter\Helper\SpatialReferenceHelper;
-use LongitudeOne\Spatial\PHP\Types\LineStringInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiLineStringInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiPointInterface;
-use LongitudeOne\Spatial\PHP\Types\MultiPolygonInterface;
-use LongitudeOne\Spatial\PHP\Types\PointInterface;
-use LongitudeOne\Spatial\PHP\Types\PolygonInterface;
-use LongitudeOne\Spatial\PHP\Types\SpatialInterface;
+use LongitudeOne\SpatialTypes\Enum\TypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 
 /**
  * MySQL adapter.
@@ -68,12 +69,12 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
     private function writeCoordinates(SpatialInterface $spatial): string
     {
         return match (true) {
-            $spatial instanceof PointInterface => $this->writePoint($spatial),
-            $spatial instanceof LineStringInterface => $this->writeLineString($spatial),
-            $spatial instanceof PolygonInterface => $this->writePolygon($spatial),
-            $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial),
-            $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial),
-            $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial),
+            $spatial instanceof PointInterface => $this->writePoint($spatial, $spatial->getSrid()),
+            $spatial instanceof LineStringInterface => $this->writeLineString($spatial, $spatial->getSrid()),
+            $spatial instanceof PolygonInterface => $this->writePolygon($spatial, $spatial->getSrid()),
+            $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial, $spatial->getSrid()),
+            $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial, $spatial->getSrid()),
+            $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial, $spatial->getSrid()),
 
             default => throw new UnsupportedSpatialInterfaceException(sprintf('MySQL adapter does not spatial class %s', $spatial::class))
         };
@@ -86,7 +87,7 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      */
     private function writeFirstByte(): string
     {
-        // The internal MySQL storage is always wrote into little endian
+        // The internal MySQL storage is always written into little endian
         return pack('C', 1);
     }
 
@@ -94,15 +95,16 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * Write the coordinates of line string.
      *
      * @param LineStringInterface $lineString the line string to write
+     * @param null|int            $srid       the SRID of the containing spatial collection
      *
      * @return string a binary string representing the line string in the internal MySQL storage format
      */
-    private function writeLineString(LineStringInterface $lineString): string
+    private function writeLineString(LineStringInterface $lineString, ?int $srid): string
     {
         $ims = pack('L', count($lineString->getPoints()));
 
         foreach ($lineString->getPoints() as $point) {
-            $ims .= $this->writePoint($point);
+            $ims .= $this->writePoint($point, $srid ?? $lineString->getSrid());
         }
 
         return $ims;
@@ -112,12 +114,13 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * Write the coordinates of a multi-line string.
      *
      * @param MultiLineStringInterface $multiLineString the multi-line string to write
+     * @param null|int                 $srid            the SRID of the containing spatial collection
      *
      * @return string a binary string representing the multi-line string in the internal MySQL storage format
      *
      * @throws UnsupportedSpatialTypeException when the spatial type is not supported
      */
-    private function writeMultiLineString(MultiLineStringInterface $multiLineString): string
+    private function writeMultiLineString(MultiLineStringInterface $multiLineString, ?int $srid): string
     {
         $lineStrings = $multiLineString->getLineStrings();
         $ims = pack('L', count($lineStrings));
@@ -125,7 +128,7 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
         foreach ($lineStrings as $lineString) {
             $ims .= $this->writeFirstByte();
             $ims .= $this->writeType($lineString);
-            $ims .= $this->writeLineString($lineString);
+            $ims .= $this->writeLineString($lineString, $srid ?? $multiLineString->getSrid());
         }
 
         return $ims;
@@ -135,19 +138,20 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * Write the coordinates of a multipoint.
      *
      * @param MultiPointInterface $multiPoint the multipoint to write
+     * @param null|int            $srid       the SRID of the containing spatial collection
      *
      * @return string a binary string representing the multipoint in the internal MySQL storage format
      *
      * @throws UnsupportedSpatialTypeException when the spatial type is not supported
      */
-    private function writeMultiPoint(MultiPointInterface $multiPoint): string
+    private function writeMultiPoint(MultiPointInterface $multiPoint, ?int $srid): string
     {
         $ims = pack('L', count($multiPoint->getPoints()));
 
         foreach ($multiPoint->getPoints() as $point) {
             $ims .= $this->writeFirstByte();
             $ims .= $this->writeType($point);
-            $ims .= $this->writePoint($point);
+            $ims .= $this->writePoint($point, $srid ?? $multiPoint->getSrid());
         }
 
         return $ims;
@@ -157,19 +161,20 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * Write the coordinates of a multi-polygon.
      *
      * @param MultiPolygonInterface $multiPolygon the multi-polygon to write
+     * @param null|int              $srid         the SRID of the containing spatial collection
      *
      * @return string a binary string representing the multi-polygon in the internal MySQL storage format
      *
      * @throws UnsupportedSpatialTypeException when the spatial type is not supported
      */
-    private function writeMultiPolygon(MultiPolygonInterface $multiPolygon): string
+    private function writeMultiPolygon(MultiPolygonInterface $multiPolygon, ?int $srid): string
     {
         $ims = pack('L', count($multiPolygon->getPolygons()));
 
         foreach ($multiPolygon->getPolygons() as $polygon) {
             $ims .= $this->writeFirstByte();
             $ims .= $this->writeType($polygon);
-            $ims .= $this->writePolygon($polygon);
+            $ims .= $this->writePolygon($polygon, $srid ?? $multiPolygon->getSrid());
         }
 
         return $ims;
@@ -181,12 +186,13 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * Be careful, depending on the SRID, the axis order may be different.
      *
      * @param PointInterface $point the point to write
+     * @param null|int       $srid  the SRID of the containing spatial collection
      *
      * @return string a binary string representing the point in the internal MySQL storage format
      */
-    private function writePoint(PointInterface $point): string
+    private function writePoint(PointInterface $point, ?int $srid): string
     {
-        return match (SpatialReferenceHelper::getAxisOrder($point->getSrid())) {
+        return match (SpatialReferenceHelper::getAxisOrder($srid ?? $point->getSrid())) {
             AxisOrderEnum::XY => pack('dd', $point->getX(), $point->getY()),
             AxisOrderEnum::YX => pack('dd', $point->getY(), $point->getX()),
         };
@@ -196,15 +202,16 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * Write a Polygon.
      *
      * @param PolygonInterface $polygon the polygon to write
+     * @param null|int         $srid    the SRID of the containing spatial collection
      *
      * @return string a binary string representing the polygon in the internal MySQL storage format
      */
-    private function writePolygon(PolygonInterface $polygon): string
+    private function writePolygon(PolygonInterface $polygon, ?int $srid): string
     {
         $ims = pack('L', count($polygon->getRings()));
 
         foreach ($polygon->getRings() as $ring) {
-            $ims .= $this->writeLineString($ring);
+            $ims .= $this->writeLineString($ring, $srid ?? $polygon->getSrid());
         }
 
         return $ims;
@@ -234,13 +241,13 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
     private function writeType(SpatialInterface $spatial): string
     {
         return match ($spatial->getType()) {
-            SpatialInterface::POINT => pack('L', 1),
-            SpatialInterface::LINESTRING => pack('L', 2),
-            SpatialInterface::POLYGON => pack('L', 3),
-            SpatialInterface::MULTIPOINT => pack('L', 4),
-            SpatialInterface::MULTILINESTRING => pack('L', 5),
-            SpatialInterface::MULTIPOLYGON => pack('L', 6),
-            // TODO GEOMETRYCOLLECTION pack 7
+            TypeEnum::POINT->value => pack('L', 1),
+            TypeEnum::LINESTRING->value => pack('L', 2),
+            TypeEnum::POLYGON->value => pack('L', 3),
+            TypeEnum::MULTIPOINT->value => pack('L', 4),
+            TypeEnum::MULTILINESTRING->value => pack('L', 5),
+            TypeEnum::MULTIPOLYGON->value => pack('L', 6),
+            TypeEnum::COLLECTION->value => pack('L', 7),
             default => throw new UnsupportedSpatialTypeException(sprintf('MySQL adapter does not support spatial type %s', $spatial->getType()))
         };
     }

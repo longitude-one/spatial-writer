@@ -14,12 +14,12 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Unit;
+namespace LongitudeOne\BinaryWriter\Tests\Unit;
 
 use LongitudeOne\BinaryWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\BinaryWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\BinaryWriter\Writer;
-use LongitudeOne\Spatial\PHP\Types\Geometry\Point;
+use LongitudeOne\SpatialTypes\Types\Geometry\Point;
 use PHPUnit\Framework\TestCase;
 
 /**

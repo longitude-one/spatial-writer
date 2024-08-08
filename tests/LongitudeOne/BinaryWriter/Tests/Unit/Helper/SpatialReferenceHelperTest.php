@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace LongitudeOne\BinaryWriter\Unit\Helper;
+namespace LongitudeOne\BinaryWriter\Tests\Unit\Helper;
 
 use LongitudeOne\BinaryWriter\Helper\AxisOrderEnum;
 use LongitudeOne\BinaryWriter\Helper\SpatialReferenceHelper;
