@@ -17,9 +17,9 @@ Feel free to provide any other strategy to convert spatial interfaces to other f
 [![Packagist License](https://img.shields.io/packagist/l/longitude-one/spatial-writer)](https://github.com/longitude-one/spatial-writer/blob/main/LICENSE)
 
 [![Last integration test](https://github.com/longitude-one/spatial-writer/actions/workflows/php-oldest.yaml/badge.svg)](https://github.com/longitude-one/spatial-writer/actions/workflows/php-oldest.yaml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/maintainability)](https://codeclimate.com/github/longitude-one/spatial-writer/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/766a1a70a22cacecc7a7/maintainability)](https://codeclimate.com/github/longitude-one/spatial-writer/maintainability)
 [![Downloads](https://img.shields.io/packagist/dm/longitude-one/spatial-writer.svg)](https://packagist.org/packages/longitude-one/spatial-writer)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/e5972b100af855818f57/test_coverage)](https://codeclimate.com/github/longitude-one/spatial-writer/test_coverage)    
+[![Coverage Status](https://coveralls.io/repos/github/longitude-one/spatial-writer/badge.svg?branch=main)](https://coveralls.io/github/longitude-one/spatial-writer?branch=main)
     
 
 ## Installation
