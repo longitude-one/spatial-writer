@@ -129,7 +129,7 @@ jobs:
 
             - name: Cache Composer PHP-STAN packages
               id: composer-php-stan-cache
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: quality/php-stan/vendor/
                   key: ${{ format('{0}-phpstan-{1}', runner.os, hashFiles('quality/php-stan/vendor/composer.lock')) }}
