@@ -121,12 +121,6 @@
     <rule ref="Generic.Formatting.SpaceAfterCast"/>
 
     <!--
-      Disallows usage of call-time pass-by-reference
-      http://php.net/manual/en/language.references.pass.php
-    -->
-    <rule ref="Generic.Functions.CallTimePassByReference"/>
-
-    <!--
       Function declarations must follow the "BSD/Allman style".
       The function brace is on the line following the function declaration and
       is indented to the same column as the start of the function declaration.
@@ -208,24 +202,6 @@
         <properties>
             <property name="indent" value="4"/>
         </properties>
-    </rule>
-
-    <!-- Ensures that eval() is not used to create objects. -->
-    <rule ref="MySource.PHP.EvalObjectFactory"/>
-
-    <!--
-      Disallows the direct usage of $_REQUEST, $_GET, $_POST and $_FILES.
-      It's only allowed in a class called "Security" in a function called "getRequestData".
-    -->
-    <rule ref="MySource.PHP.GetRequestData" />
-
-    <!--
-      Warns when function values are returned directly.
-      The Sniff enforces that the result of a function call should be
-      assigned to a variable before being returned.
-    -->
-    <rule ref="MySource.PHP.ReturnFunctionValue">
-        <severity>0</severity>
     </rule>
 
     <!--
@@ -453,12 +429,6 @@
       that opening braces are on the new line.
     -->
     <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace"/>
-
-    <!--
-      Ensures all language constructs (without brackets) contain a single
-      space between themselves and their content.
-    -->
-    <rule ref="Squiz.WhiteSpace.LanguageConstructSpacing"/>
 
     <!--
       Ensures that there is one space before and after a logical operator.

@@ -1,6 +1,6 @@
 This file is part of the binary-writer project.
 
-PHP 8.1 | 8.2 | 8.3
+PHP 8.4 | 8.5
 
 Copyright Alexandre Tranchant <alexandre.tranchant@gmail.com> %year%
 Copyright Longitude One %year%

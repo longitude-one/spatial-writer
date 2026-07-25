@@ -2,10 +2,10 @@
 /**
  * This file is part of the binary-writer project.
  *
- * PHP 8.1 | 8.2 | 8.3
+ * PHP 8.4 | 8.5
  *
- * Copyright Alexandre Tranchant <alexandre.tranchant@gmail.com> 2024
- * Copyright Longitude One 2024
+ * Copyright Alexandre Tranchant <alexandre.tranchant@gmail.com> 2024-2026
+ * Copyright Longitude One 2024-2026
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -69,6 +69,18 @@ class MySQLStrategyTest extends TestCase
     }
 
     /**
+     * Let's check the MySQL strategy with a linestring.
+     *
+     * @param LineStringInterface $lineString the linestring to convert
+     * @param string              $expected   the expected result in hexadecimal format
+     */
+    #[DataProvider('lineStringProvider')]
+    public function testLineString(LineStringInterface $lineString, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($lineString))));
+    }
+
+    /**
      * LineString provider.
      *
      * @return \Generator<string, array{0: LineStringInterface, 1: string}, null, void>
@@ -97,6 +109,18 @@ class MySQLStrategyTest extends TestCase
     }
 
     /**
+     * Let's check the MySQL strategy with a multilinestring.
+     *
+     * @param MultiLineStringInterface $multiLineString the multilinestring to convert
+     * @param string                   $expected        the expected result in hexadecimal format
+     */
+    #[DataProvider('multiLineStringProvider')]
+    public function testMultiLineString(MultiLineStringInterface $multiLineString, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiLineString))));
+    }
+
+    /**
      * MultiLineString provider.
      *
      * @return \Generator<string, array{0: MultiLineStringInterface, 1: string}, null, void>
@@ -116,6 +140,18 @@ class MySQLStrategyTest extends TestCase
     }
 
     /**
+     * Let's check the MySQL strategy with a multipoint.
+     *
+     * @param MultiPointInterface $multiPoint the multipoint to convert
+     * @param string              $expected   the expected result in hexadecimal format
+     */
+    #[DataProvider('multiPointProvider')]
+    public function testMultiPoint(MultiPointInterface $multiPoint, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiPoint))));
+    }
+
+    /**
      * MultiPoint provider.
      *
      * @return \Generator<string, array{0: MultiPointInterface, 1: string}, null, void>
@@ -129,6 +165,18 @@ class MySQLStrategyTest extends TestCase
             new MultiPoint([[0, 3], [1, 2]]),
             '000000000104000000020000000101000000000000000000000000000000000008400101000000000000000000F03F0000000000000040',
         ];
+    }
+
+    /**
+     * Let's check the MySQL strategy with a multipolygon.
+     *
+     * @param MultiPolygonInterface $multiPolygon the multipolygon to convert
+     * @param string                $expected     the expected result in hexadecimal format
+     */
+    #[DataProvider('multiPolygonProvider')]
+    public function testMultiPolygon(MultiPolygonInterface $multiPolygon, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiPolygon))));
     }
 
     /**
@@ -148,6 +196,18 @@ class MySQLStrategyTest extends TestCase
             ]),
             '000000000106000000020000000103000000010000000400000000000000000000000000000000000000000000000000F03F00000000000000409A9999999999014033333333333303400000000000000000000000000000000001030000000100000004000000000000000000F0BF000000000000F0BF000000000000F0BF00000000000000C09A999999999901C033333333333303C0000000000000F0BF000000000000F0BF',
         ];
+    }
+
+    /**
+     * Let's check the MySQL strategy with a point.
+     *
+     * @param PointInterface $point    the point to convert
+     * @param string         $expected the expected result in hexadecimal format
+     */
+    #[DataProvider('pointProvider')]
+    public function testPoint(PointInterface $point, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($point))));
     }
 
     /**
@@ -191,6 +251,18 @@ class MySQLStrategyTest extends TestCase
     }
 
     /**
+     * Let's check the MySQL strategy with a polygon.
+     *
+     * @param PolygonInterface $polygon  the polygon to convert
+     * @param string           $expected the expected result in hexadecimal format
+     */
+    #[DataProvider('polygonProvider')]
+    public function testPolygon(PolygonInterface $polygon, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($polygon))));
+    }
+
+    /**
      * Polygon provider.
      *
      * The result values are checked with this kind of SQL command:
@@ -225,77 +297,5 @@ class MySQLStrategyTest extends TestCase
             ]))->setSrid(7035),
             '7B1B000001030000000200000005000000000000000000000000000000000000000000000000000000000000000000F03F000000000000F03F000000000000F03F000000000000F03F0000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000F03F00000000000000409A9999999999014033333333333303400000000000001840000000000000184000000000000000000000000000000000',
         ];
-    }
-
-    /**
-     * Let's check the MySQL strategy with a linestring.
-     *
-     * @param LineStringInterface $lineString the linestring to convert
-     * @param string              $expected   the expected result in hexadecimal format
-     */
-    #[DataProvider('lineStringProvider')]
-    public function testLineString(LineStringInterface $lineString, string $expected): void
-    {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($lineString))));
-    }
-
-    /**
-     * Let's check the MySQL strategy with a multilinestring.
-     *
-     * @param MultiLineStringInterface $multiLineString the multilinestring to convert
-     * @param string                   $expected        the expected result in hexadecimal format
-     */
-    #[DataProvider('multiLineStringProvider')]
-    public function testMultiLineString(MultiLineStringInterface $multiLineString, string $expected): void
-    {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiLineString))));
-    }
-
-    /**
-     * Let's check the MySQL strategy with a multipoint.
-     *
-     * @param MultiPointInterface $multiPoint the multipoint to convert
-     * @param string              $expected   the expected result in hexadecimal format
-     */
-    #[DataProvider('multiPointProvider')]
-    public function testMultiPoint(MultiPointInterface $multiPoint, string $expected): void
-    {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiPoint))));
-    }
-
-    /**
-     * Let's check the MySQL strategy with a multipolygon.
-     *
-     * @param MultiPolygonInterface $multiPolygon the multipolygon to convert
-     * @param string                $expected     the expected result in hexadecimal format
-     */
-    #[DataProvider('multiPolygonProvider')]
-    public function testMultiPolygon(MultiPolygonInterface $multiPolygon, string $expected): void
-    {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($multiPolygon))));
-    }
-
-    /**
-     * Let's check the MySQL strategy with a point.
-     *
-     * @param PointInterface $point    the point to convert
-     * @param string         $expected the expected result in hexadecimal format
-     */
-    #[DataProvider('pointProvider')]
-    public function testPoint(PointInterface $point, string $expected): void
-    {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($point))));
-    }
-
-    /**
-     * Let's check the MySQL strategy with a polygon.
-     *
-     * @param PolygonInterface $polygon  the polygon to convert
-     * @param string           $expected the expected result in hexadecimal format
-     */
-    #[DataProvider('polygonProvider')]
-    public function testPolygon(PolygonInterface $polygon, string $expected): void
-    {
-        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($polygon))));
     }
 }

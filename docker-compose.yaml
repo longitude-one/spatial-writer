@@ -1,0 +1,7 @@
+services:
+  spatial-writer:
+    container_name: "lo-spatial-writer"
+    build:
+      context: ./docker/php8
+    volumes:
+      - .:/var/www

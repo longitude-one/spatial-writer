@@ -2,10 +2,10 @@
 /**
  * This file is part of the binary-writer project.
  *
- * PHP 8.1 | 8.2 | 8.3
+ * PHP 8.4 | 8.5
  *
- * Copyright Alexandre Tranchant <alexandre.tranchant@gmail.com> 2024
- * Copyright Longitude One 2024
+ * Copyright Alexandre Tranchant <alexandre.tranchant@gmail.com> 2024-2026
+ * Copyright Longitude One 2024-2026
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,6 +31,18 @@ use PHPUnit\Framework\TestCase;
 class SpatialReferenceHelperTest extends TestCase
 {
     /**
+     * Test getAxisOrder method with some known values.
+     *
+     * @param null|int      $srid      SRID to test
+     * @param AxisOrderEnum $axisOrder expected axis order
+     */
+    #[DataProvider('sridProvider')]
+    public function testGetAxisOrder(?int $srid, AxisOrderEnum $axisOrder): void
+    {
+        static::assertSame($axisOrder, SpatialReferenceHelper::getAxisOrder($srid));
+    }
+
+    /**
      * Data provider for the testGetAxisOrder method.
      *
      * @return \Generator<string, array{null|int, AxisOrderEnum}, null, void>
@@ -46,17 +58,5 @@ class SpatialReferenceHelperTest extends TestCase
         yield 'SRID unknown => XY' => [999999999, AxisOrderEnum::XY];
 
         yield 'SRID null => XY' => [null, AxisOrderEnum::XY];
-    }
-
-    /**
-     * Test getAxisOrder method with some known values.
-     *
-     * @param null|int      $srid      SRID to test
-     * @param AxisOrderEnum $axisOrder expected axis order
-     */
-    #[DataProvider('sridProvider')]
-    public function testGetAxisOrder(?int $srid, AxisOrderEnum $axisOrder): void
-    {
-        static::assertSame($axisOrder, SpatialReferenceHelper::getAxisOrder($srid));
     }
 }

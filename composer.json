@@ -16,7 +16,7 @@
     },
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.4",
         "longitude-one/spatial-types": "0.0.*"
     },
     "require-dev": {
@@ -30,5 +30,21 @@
             "LongitudeOne\\SpatialWriter": "lib/",
             "LongitudeOne\\SpatialWriter\\Tests": "tests/"
         }
+    },
+    "scripts": {
+        "quality": [
+            "quality/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=quality/php-cs-fixer/.php-cs-fixer.php --allow-risky=yes",
+            "quality/php-stan/vendor/bin/phpstan analyse --configuration=quality/php-stan/php-stan.neon lib tests --error-format=table --no-progress --no-interaction --no-ansi --level=9 --memory-limit=256M",
+            "quality/php-mess-detector/vendor/bin/phpmd lib text quality/php-mess-detector/ruleset.xml",
+            "quality/php-mess-detector/vendor/bin/phpmd tests text quality/php-mess-detector/test-ruleset.xml",
+            "quality/php-code-sniffer/vendor/bin/phpcs --standard=quality/php-code-sniffer/phpcs.xml -s"
+        ],
+        "test": "phpunit",
+        "test-local": [
+            "phpunit",
+            "sed -i.bak 's|/var/www/|./|g' .phpunit-cache/coverage.xml",
+            "rm .phpunit-cache/coverage.xml.bak",
+            "cat .phpunit-cache/coverage-results.txt"
+        ]
     }
 }

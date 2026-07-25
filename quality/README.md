@@ -1,72 +1,25 @@
 # Some tips to use quality tools
 
-## PHP Linters: Php-CS-Fixer and PHP-Stan 
+## Quick start
 
-```shell
-docker exec lo-php81 COMMAND
+```bash
+# build composer image and run a container
+docker compose build
+docker compose up -d
+# install quality tools
+docker compose exec spatial-writer composer install --working-dir=quality/php-cs-fixer
+docker compose exec spatial-writer composer install --working-dir=quality/php-stan
+docker compose exec spatial-writer composer install --working-dir=quality/php-mess-detector
+docker compose exec spatial-writer composer install --working-dir=quality/php-code-sniffer
+# install library-dependencies if not already done
+docker compose exec spatial-writer composer install
+# launch quality checks
+docker compose exec spatial-writer composer quality
 ```
-Example:
-```shell
-docker exec lo-php81 composer install --working-dir=quality/php-cs-fixer
-```
+ 
+In this repository we use PHP_CodeSniffer (phpcs), PHP CS Fixer, PHP Mess Detector (phpmd), and PHPStan to enforce and improve code quality: 
 
-## Php-cs-fixer
-
-To install PHP-CS-Fixer, run this command:
-```shell
-docker exec lo-php81 composer update --working-dir=quality/php-cs-fixer
-```
-
-To test all files:
-```shell
-docker exec lo-php81 quality/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=quality/php-cs-fixer/.php-cs-fixer.php --dry-run --allow-risky=yes
-```
-To fix all files:
-```shell
-docker exec lo-php81 quality/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=quality/php-cs-fixer/.php-cs-fixer.php --allow-risky=yes
-```
-
-## PhpStan
-
-To install PHP-Stan, run this command:
-
-```shell
-docker exec lo-php81 composer update --working-dir=quality/php-stan
-```
-
-To test files:
-```shell
-docker exec lo-php81 quality/php-stan/vendor/bin/phpstan analyse --configuration=quality/php-stan/php-stan.neon lib tests --error-format=table --no-progress --no-interaction --no-ansi --level=9 --memory-limit=256M
-```
-
-To add a file at exception baseline:
-```shell
-docker exec lo-php81 quality/php-stan/vendor/bin/phpstan analyse --configuration=quality/php-stan/php-stan.neon lib tests --error-format=table --no-progress --no-interaction --no-ansi --level=9 --generate-baseline quality/php-stan/phpstan-baseline.neon
-```
-
-## PHP Mess Detector
-
-To install PHP-Mess-Detector, run this command:
-
-```shell
-docker exec lo-php81 composer update --working-dir=quality/php-mess-detector
-```
-
-To test files:
-```shell
-docker exec lo-php81 quality/php-mess-detector/vendor/bin/phpmd lib text quality/php-mess-detector/ruleset.xml
-docker exec lo-php81 quality/php-mess-detector/vendor/bin/phpmd tests text quality/php-mess-detector/test-ruleset.xml
-```
-
-## PHP Code Sniffer
-
-To install PHP-Code-Sniffer, run this command:
-
-```shell
-docker exec lo-php81 composer update --working-dir=quality/php-code-sniffer
-```
-
-To test files:
-```shell
- docker exec lo-php81 quality/php-code-sniffer/vendor/bin/phpcs --standard=quality/php-code-sniffer/phpcs.xml -s
-```
+* **PHP_CodeSniffer** enforces the project's coding standards and flags style violations and suspicious constructs; 
+* **PHP CS Fixer** automatically reformats source code to the configured style rules while preserving behavior; 
+* **PHP Mess Detector** detects potential bugs, dead or unused code, and maintainability issues such as high cyclomatic complexity; 
+* **PHPStan** performs advanced static analysis with type inference to surface type-related errors, incorrect API usage, and contract violations before runtime.

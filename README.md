@@ -27,4 +27,3 @@ Feel free to provide any other strategy to convert spatial interfaces to other f
 ```bash
 composer require longitude-one/spatial-writer
 ```
-
