@@ -57,14 +57,16 @@ jobs:
               run: composer show
 
             - name: Run test suite and with coverage for PHP 8.4
-              run: composer run-script test
+              run: |
+                composer run-script test
+                cat .phpunit.cache/coverage-results.txt
 
             - name: Upload coverage to CodeCov
               if: ${{ env.HAS_CC_SECRET == 'true' }}
               uses: codecov/codecov-action@v7
               with:
                 token: ${{ secrets.CODECOV_TOKEN }}
-                files: .phpunit.cache/code-coverage/coverage.xml
+                files: .phpunit.cache/coverage.xml
                 slug: longitude-one/doctrine-spatial
 
             ## Quality checks
