@@ -1,4 +1,4 @@
-name: Tests with PHP 8.5+  versions
+name: Tests with PHP 8.5+ versions
 on:
     workflow_run:
         workflows: ["Full tests with oldest PHP version"]
@@ -51,4 +51,4 @@ jobs:
               run: composer show
 
             - name: Run test suite
-              run: vendor/bin/phpunit
+              run: composer test-local

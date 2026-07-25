@@ -1,4 +1,4 @@
-name: Full tests with oldest PHP version
+name: Full tests with the oldest PHP version
 on:
     schedule:
         - cron: '0 16 * * 3'
@@ -56,20 +56,16 @@ jobs:
             - name: List libraries
               run: composer show
 
-            - name: Run test suite and with coverage for codeclimate for PHP 8.3 and doctrine/orm ^3.1 only
-              if: ${{ env.HAS_CC_SECRET == 'true' }}
-              run: composer run-script test-coverage
+            - name: Run test suite and with coverage for PHP 8.4
+              run: composer run-script test
 
-            - name: Upload coverage to Codecov
+            - name: Upload coverage to CodeCov
               if: ${{ env.HAS_CC_SECRET == 'true' }}
               uses: codecov/codecov-action@v7
               with:
                 token: ${{ secrets.CODECOV_TOKEN }}
                 files: .phpunit.cache/code-coverage/clover.xml
                 slug: longitude-one/doctrine-spatial
-            - name: Run test suite for forks or version without code coverage
-              if: ${{ env.HAS_CC_SECRET != 'true' }}
-              run: composer run-script test
 
             ## Quality checks
             ## PHP-CS-Fixer is needed with only one version of PHP
