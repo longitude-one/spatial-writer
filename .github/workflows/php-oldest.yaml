@@ -66,8 +66,8 @@ jobs:
               uses: codecov/codecov-action@v7
               with:
                 token: ${{ secrets.CODECOV_TOKEN }}
-                files: .phpunit.cache/coverage.xml
-                slug: longitude-one/doctrine-spatial
+                files: .phpunit-cache/coverage.xml
+                slug: longitude-one/spatial-writer
 
             ## Quality checks
             ## PHP-CS-Fixer is needed with only one version of PHP
