@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Tests\Unit;
 
 use LongitudeOne\SpatialTypes\Types\Geometry\Point;
+use LongitudeOne\SpatialWriter\Strategy\EwkbBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\SpatialWriter\Writer;
@@ -53,6 +54,27 @@ class WriterTest extends TestCase
         $point = (new Point(1, 2))->setSrid(4326);
         static::assertSame(
             $strategy->executeStrategy($point),
+            $writer->convert($point)
+        );
+    }
+
+    /**
+     * Test the binary writer with the Well-Known Binary strategy.
+     */
+    public function testEwkbWriterWithEwkbStrategy(): void
+    {
+        $badStrategy = new MySQLBinaryStrategy();
+        $strategy = new EwkbBinaryStrategy();        
+        $writer = new Writer($badStrategy);
+        static::assertSame($badStrategy, $writer->getStrategy());
+        $writer->setStrategy($strategy);
+        $point = (new Point(1, 2))->setSrid(4326);
+        static::assertSame(
+            $strategy->executeStrategy($point),
+            $writer->convert($point)
+        );
+        static::assertNotSame(
+            $badStrategy->executeStrategy($point),
             $writer->convert($point)
         );
     }
