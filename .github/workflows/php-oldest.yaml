@@ -56,25 +56,20 @@ jobs:
             - name: List libraries
               run: composer show
 
-            - name: Run test suite with coverage for codeclimate and upload results
+            - name: Run test suite and with coverage for codeclimate for PHP 8.3 and doctrine/orm ^3.1 only
               if: ${{ env.HAS_CC_SECRET == 'true' }}
-              uses: paambaati/codeclimate-action@v6.0.0
-              env:
-                  CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-              with:
-                  coverageCommand: vendor/bin/phpunit
-                  coverageLocations: ${{github.workspace}}/.phpunit-cache/clover.xml:clover
+              run: composer run-script test-coverage
 
+            - name: Upload coverage to Codecov
+              if: ${{ env.HAS_CC_SECRET == 'true' }}
+              uses: codecov/codecov-action@v7
+              with:
+                token: ${{ secrets.CODECOV_TOKEN }}
+                files: .phpunit.cache/code-coverage/clover.xml
+                slug: longitude-one/doctrine-spatial
             - name: Run test suite for forks or version without code coverage
               if: ${{ env.HAS_CC_SECRET != 'true' }}
-              run: vendor/bin/phpunit
-
-            - name: Upload code coverage on Coveralls.io
-              if: ${{ env.HAS_CA_SECRET == 'true' }}
-              uses: coverallsapp/github-action@v2
-              with:
-                  github-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
-                  file: ${{github.workspace}}/.phpunit-cache/clover.xml
+              run: composer run-script test
 
             ## Quality checks
             ## PHP-CS-Fixer is needed with only one version of PHP
