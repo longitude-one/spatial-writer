@@ -123,14 +123,7 @@ class MySQLStrategyTest extends TestCase
             self::GEOMETRY_COLLECTION_EMPTY_WITH_SRID_4326,
         ];
 
-        // Collection with a point and a SRID XY
-        // yield 'SRID=7035;LINESTRING(0 0, 1 2, 2.2 2.4)' => [
-        //     (new LineString([[0, 0], [1, 2], [2.2, 2.4]]))->setSrid(7035),
-        //     self::LINE_STRING_EXPECTED_WITH_SRID_7035,
-        // ];
-
         // Collection with a point and a SRID YX
-
         yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(42.1 42.42))' => [
             (new GeometryCollection(4326))->addElement(new Point(42.1, 42.42)),
             self::GEOMETRY_COLLECTION_WITH_POINT,
