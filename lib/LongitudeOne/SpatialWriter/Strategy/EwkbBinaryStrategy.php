@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Strategy;
 
 use LongitudeOne\SpatialTypes\Enum\TypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
@@ -71,6 +72,26 @@ class EwkbBinaryStrategy implements BinaryStrategyInterface
     }
 
     /**
+     * Encode the collection into the internal MySQL format.
+     *
+     * @param CollectionInterface $collection the collection to encode
+     *
+     * @return string a binary string representing the collection in the internal MySQL storage format
+     */
+    private function writeCollection(CollectionInterface $collection): string
+    {
+        $ewkb = pack('L', count($collection->getElements()));
+
+        foreach ($collection->getElements() as $element) {
+            $ewkb .= $this->writeFirstByte();
+            $ewkb .= $this->writeType($element);
+            $ewkb .= $this->writeCoordinates($element);
+        }
+
+        return $ewkb;
+    }
+
+    /**
      * Let's call the right method to write coordinates.
      *
      * @param SpatialInterface $spatial the spatial interface to convert
@@ -87,6 +108,7 @@ class EwkbBinaryStrategy implements BinaryStrategyInterface
             $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial),
             $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial),
             $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial),
+            $spatial instanceof CollectionInterface => $this->writeCollection($spatial),
 
             default => throw new UnsupportedSpatialInterfaceException($spatial::class),
         };

@@ -47,15 +47,13 @@ public function testCollection(CollectionInterface $collection, string $expected
 
 Of course, you should use data providers.
 
-## How the tests work
+## How to create test for the EWKB Strategy
 
-Each test usually performs three steps:
+This is the same process, but connect on a PostGis Database, and use this kind of request:
 
-1. Create or load a geometry object.
-2. Execute the strategy under test.
-3. Compare the produced binary output with the expected hexadecimal value.
-
-The expected values are stored directly in the test cases and are used to verify that the writer produces the correct Well-Known Binary (WKB) representation.
+```sql
+SELECT ST_ASEWKB(ST_GeomFromText('POINT(42.1 42.42)', 4326));
+```
 
 ## Coverage
 
@@ -66,4 +64,3 @@ composer test-local
 This command generates a coverage report at ./phpunit-cache/coverage.xml that can be imported by your IDE to track code coverage.
 
 ![Sunburst](https://codecov.io/gh/longitude-one/spatial-writer/graphs/sunburst.svg?token=NIFES3ETWH)
-

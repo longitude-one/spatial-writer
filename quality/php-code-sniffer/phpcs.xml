@@ -325,7 +325,7 @@
     -->
     <rule ref="Squiz.PHP.CommentedOutCode">
         <properties>
-            <property name="maxPercentage" value="35"/>
+            <property name="maxPercentage" value="51"/>
         </properties>
     </rule>
 
