@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-        cacheDirectory=".phpunit-cache"
-        displayDetailsOnTestsThatTriggerDeprecations="true"
-        displayDetailsOnTestsThatTriggerNotices="true"
-        displayDetailsOnTestsThatTriggerWarnings="true"
-        displayDetailsOnTestsThatTriggerErrors="true">
+            xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.2/phpunit.xsd"
+            cacheDirectory=".phpunit-cache"
+            displayDetailsOnTestsThatTriggerDeprecations="true"
+            displayDetailsOnTestsThatTriggerNotices="true"
+            displayDetailsOnTestsThatTriggerWarnings="true"
+            displayDetailsOnTestsThatTriggerErrors="true"
+            displayDetailsOnPhpunitDeprecations="true">
     <testsuites>
         <testsuite name="spatial-writer">
             <directory>tests/LongitudeOne/SpatialWriter/Tests</directory>
@@ -16,7 +17,7 @@
             <directory suffix=".php">lib/</directory>
         </include>
     </source>
-    <coverage cacheDirectory=".phpunit-cache/code-coverage">
+    <coverage>
         <report>
             <clover outputFile=".phpunit-cache/coverage.xml"/>
             <text outputFile=".phpunit-cache/coverage-results.txt" showOnlySummary="true"/>
