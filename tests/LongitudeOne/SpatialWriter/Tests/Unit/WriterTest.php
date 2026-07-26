@@ -64,7 +64,7 @@ class WriterTest extends TestCase
     public function testEwkbWriterWithEwkbStrategy(): void
     {
         $badStrategy = new MySQLBinaryStrategy();
-        $strategy = new EwkbBinaryStrategy();        
+        $strategy = new EwkbBinaryStrategy();
         $writer = new Writer($badStrategy);
         static::assertSame($badStrategy, $writer->getStrategy());
         $writer->setStrategy($strategy);

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Strategy;
 
 use LongitudeOne\SpatialTypes\Enum\TypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
@@ -57,6 +58,22 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
     }
 
     /**
+     * Write the.
+     */
+    private function writeCollection(CollectionInterface $collection, ?int $srid): string
+    {
+        $ims = pack('L', count($collection->getElements()));
+
+        foreach ($collection->getElements() as $element) {
+            $ims .= $this->writeFirstByte();
+            $ims .= $this->writeType($element);
+            $ims .= $this->writeCoordinates($element, $srid);
+        }
+
+        return $ims;
+    }
+
+    /**
      * Write the coordinates.
      *
      * @param SpatialInterface $spatial the spatial interface to write
@@ -66,17 +83,18 @@ class MySQLBinaryStrategy implements BinaryStrategyInterface
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
-    private function writeCoordinates(SpatialInterface $spatial): string
+    private function writeCoordinates(SpatialInterface $spatial, ?int $srid = null): string
     {
         return match (true) {
-            $spatial instanceof PointInterface => $this->writePoint($spatial, $spatial->getSrid()),
-            $spatial instanceof LineStringInterface => $this->writeLineString($spatial, $spatial->getSrid()),
-            $spatial instanceof PolygonInterface => $this->writePolygon($spatial, $spatial->getSrid()),
-            $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial, $spatial->getSrid()),
-            $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial, $spatial->getSrid()),
-            $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial, $spatial->getSrid()),
+            $spatial instanceof PointInterface => $this->writePoint($spatial, $srid ?? $spatial->getSrid()),
+            $spatial instanceof LineStringInterface => $this->writeLineString($spatial, $srid ?? $spatial->getSrid()),
+            $spatial instanceof PolygonInterface => $this->writePolygon($spatial, $srid ?? $spatial->getSrid()),
+            $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial, $srid ?? $spatial->getSrid()),
+            $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial, $srid ?? $spatial->getSrid()),
+            $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial, $srid ?? $spatial->getSrid()),
+            $spatial instanceof CollectionInterface => $this->writeCollection($spatial, $srid ?? $spatial->getSrid()),
 
-            default => throw new UnsupportedSpatialInterfaceException(sprintf('MySQL adapter does not spatial class %s', $spatial::class))
+            default => throw new UnsupportedSpatialInterfaceException(sprintf('MySQL adapter does not support the spatial class %s', $spatial::class))
         };
     }
 
