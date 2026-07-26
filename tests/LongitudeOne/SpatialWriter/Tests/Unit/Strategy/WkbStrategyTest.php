@@ -17,12 +17,14 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy;
 
 use LongitudeOne\SpatialTypes\Exception\SpatialTypeExceptionInterface;
+use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
+use LongitudeOne\SpatialTypes\Types\Geometry\GeometryCollection;
 use LongitudeOne\SpatialTypes\Types\Geometry\LineString;
 use LongitudeOne\SpatialTypes\Types\Geometry\MultiLineString;
 use LongitudeOne\SpatialTypes\Types\Geometry\MultiPoint;
@@ -43,6 +45,10 @@ use PHPUnit\Framework\TestCase;
  */
 class WkbStrategyTest extends TestCase
 {
+    private const GEOMETRY_COLLECTION_EMPTY = '010700000000000000';
+    private const GEOMETRY_COLLECTION_WITH_POINT_LINESTRING = '0107000000020000000101000000CDCCCCCCCC0C4540F6285C8FC2354540010200000003000000000000000000000000000000000000000000000000000000000000000000F0BF000000000000F03F0000000000000040';
+    private const GEOMETRY_COLLECTION_WITH_POINT_SRID = '0107000000010000000101000000CDCCCCCCCC0C4540F6285C8FC2354540';
+
     private const LINE_STRING_EXPECTED_WITH_MORE_POINTS = '010200000003000000000000000000000000000000000000000000000000000000000000000000F03F000000000000F03F000000000000F03F';
     private const LINE_STRING_EXPECTED_WITH_SRID_XY = '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F';
     private const LINE_STRING_EXPECTED_WITH_SRID_YX = '01020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F';
@@ -82,6 +88,58 @@ class WkbStrategyTest extends TestCase
     {
         unset($this->strategy);
         parent::tearDown();
+    }
+
+    /**
+     * Let's check the EWKB strategy with a collection.
+     *
+     * @param CollectionInterface $collection the collection to convert
+     * @param string              $expected   the expected result in hexadecimal format
+     */
+    #[DataProvider('collectionProvider')]
+    public function testCollection(CollectionInterface $collection, string $expected): void
+    {
+        static::assertSame($expected, mb_strtoupper(bin2hex($this->strategy->executeStrategy($collection))));
+    }
+
+    /**
+     * Collection provider.
+     *
+     * @return \Generator<string, array{0: CollectionInterface, 1: string}, null, void>
+     *
+     * @throws SpatialTypeExceptionInterface this won't happen because provided coordinates are exact
+     */
+    public static function collectionProvider(): \Generator
+    {
+        // Collection without SRID
+        yield 'COLLECTION EMPTY' => [
+            new GeometryCollection(),
+            self::GEOMETRY_COLLECTION_EMPTY,
+        ];
+
+        // Collection with SRID
+        yield 'SRID=4326;COLLECTION EMPTY' => [
+            new GeometryCollection(),
+            self::GEOMETRY_COLLECTION_EMPTY,
+        ];
+
+        // Collection with a point and a SRID YX
+        yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(42.1, 42.42))' => [
+            (new GeometryCollection(4326))->addElement(new GeometricPoint(42.1, 42.42)),
+            self::GEOMETRY_COLLECTION_WITH_POINT_SRID,
+        ];
+
+        // Collection with a point and a LineString
+        yield 'GEOMETRYCOLLECTION(POINT(42.1 42.42, LINESTRING(0 0, 0 -1, 1 2)' => [
+            (new GeometryCollection())
+                ->addElement(new GeometricPoint(42.1, 42.42))
+                ->addElement(new LineString([
+                    new GeometricPoint(0, 0),
+                    new GeometricPoint(0, -1),
+                    new GeometricPoint(1, 2),
+                ])),
+            self::GEOMETRY_COLLECTION_WITH_POINT_LINESTRING,
+        ];
     }
 
     /**

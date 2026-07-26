@@ -47,12 +47,20 @@ public function testCollection(CollectionInterface $collection, string $expected
 
 Of course, you should use data providers.
 
-## How to create test for the EWKB Strategy
+## How to create test for the Extended WKB Strategy
 
 This is the same process, but connect on a PostGis Database, and use this kind of request:
 
 ```sql
-SELECT ST_ASEWKB(ST_GeomFromText('POINT(42.1 42.42)', 4326));
+SELECT ST_AsEwkb(ST_GeomFromText('POINT(42.1 42.42)', 4326));
+```
+
+## How to create test for the WKB Strategy
+
+This is the same process, but connect on a PostGis Database, and use this kind of request:
+
+```sql
+SELECT ST_AsBinary(ST_GeomFromText('POINT(42.1 42.42)', 4326));
 ```
 
 ## Coverage
