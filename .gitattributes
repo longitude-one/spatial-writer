@@ -6,13 +6,8 @@
 /.gitattributes export-ignore
 
 # Ignore documentation and quality tools
-/docs export-ignore
 /quality export-ignore
 CONTRIBUTING.md export-ignore
-
-# Ignore Docker and local development files
-/docker export-ignore
-docker-compose.yaml export-ignore
 
 # Ignore tests and related resources
 /tests export-ignore
