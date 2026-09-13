@@ -128,32 +128,34 @@ class EwkbStrategyTest extends TestCase
 
         // Collection with a point and a SRID YX
         yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(0 0))' => [
-            (new GeometryCollection(4326))->addElement(new GeometricPoint(42.1, 42.42)),
+            new GeometryCollection(4326, [new GeometricPoint(42.1, 42.42, 4326)]),
             self::GEOMETRY_COLLECTION_WITH_POINT_SRID,
         ];
 
         // Collection with a point and a LineString
         yield 'GEOMETRYCOLLECTION(POINT(42.1 42.42, LINESTRING(0 0, 0 -1, 1 2)' => [
-            (new GeometryCollection())
-                ->addElement(new GeometricPoint(42.1, 42.42))
-                ->addElement(new LineString([
+            new GeometryCollection(0, [
+                new GeometricPoint(42.1, 42.42),
+                new LineString([
                     new GeometricPoint(0, 0),
                     new GeometricPoint(0, -1),
                     new GeometricPoint(1, 2),
-                ])),
+                ]),
+            ]),
             self::GEOMETRY_COLLECTION_WITH_POINT_LINESTRING,
         ];
 
         // Collection with a COLLECTION
         // yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(42.1 42.42), LINESTRING(0 0, 0 -1, 1 2), GEOMETRYCOLLECTION EMPTY)' => [
-        //     (new GeometryCollection(4326))
-        //         ->addElement(new GeometricPoint(42.1, 42.42))
-        //         ->addElement(new LineString([
-        //             new GeometricPoint(0,0),
-        //             new GeometricPoint(0,-1),
-        //             new GeometricPoint(1,2),
-        //         ]))
-        //         ->addElement(new GeometryCollection()),
+        //     new GeometryCollection(4326, [
+        //         new GeometricPoint(42.1, 42.42, 4326),
+        //         new LineString([
+        //             new GeometricPoint(0, 0, 4326),
+        //             new GeometricPoint(0, -1, 4326),
+        //             new GeometricPoint(1, 2, 4326),
+        //         ], 4326),
+        //         new GeometryCollection(4326),
+        //     ]),
         //     self::GEOMETRY_COLLECTION_EMBEDDED,
         // ];
     }

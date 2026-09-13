@@ -125,7 +125,7 @@ class MySQLStrategyTest extends TestCase
 
         // Collection with a point and a SRID YX
         yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(42.1 42.42))' => [
-            (new GeometryCollection(4326))->addElement(new Point(42.1, 42.42)),
+            new GeometryCollection(4326, [new Point(42.1, 42.42, 4326)]),
             self::GEOMETRY_COLLECTION_WITH_POINT,
         ];
     }
