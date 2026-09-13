@@ -14,13 +14,14 @@ This table describes the capabilities of the repository's current implementation
 | Class.                | Output                       | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ---------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
 | `WktTextStrategy`     | WKT text                     | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
+| `EwktTextStrategy`    | EWKT text                    | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | WKB binary                   | No                | XY                 | Exchanges with a standard WKB consumer                           |
 | `EwkbBinaryStrategy`  | EWKB binary                  | Yes, when nonzero | XY                 | Exchanges with a consumer of the extended PostGIS format         |
 | `MySQLBinaryStrategy` | Internal MySQL binary format | Yes, as a prefix  | XY                 | Integrations expecting spatial values in MySQL's internal format |
 
 The three binary strategies support `Point`, `LineString`, `Polygon`,
 `MultiPoint`, `MultiLineString`, `MultiPolygon`, and geometry collections.
-WKT also supports `Triangle` and `PolyhedralSurface`. Classes in the Geometry
+WKT and EWKT also support `Triangle` and `PolyhedralSurface`. Classes in the Geometry
 and Geography families use the same output type names; for example,
 `GeographyCollection` becomes `GEOMETRYCOLLECTION`.
 
@@ -34,6 +35,7 @@ require 'vendor/autoload.php';
 
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Strategy\EwkbBinaryStrategy;
+use LongitudeOne\SpatialWriter\Strategy\EwktTextStrategy;
 use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\WktTextStrategy;
@@ -71,6 +73,30 @@ throws a `JsonException`.
 
 References: [GEOS WKT syntax and examples](https://libgeos.org/specifications/wkt/),
 [PostGIS WKT conversion: ST_AsText](https://postgis.net/docs/ST_AsText.html).
+
+## EWKT — `EwktTextStrategy`
+
+[This strategy](../lib/LongitudeOne/SpatialWriter/Strategy/EwktTextStrategy.php)
+extends `WktTextStrategy`. It adds `SRID=<value>;` before the WKT when the
+object's SRID is nonzero. A default or explicit SRID of zero produces plain
+WKT with no prefix.
+
+```php
+$writer->setStrategy(new EwktTextStrategy());
+echo $writer->convert($point);
+// SRID=4326;POINT (1 2)
+```
+
+All geometry types, coordinate ordering, dimension markers, empty values,
+and numeric formatting are inherited from WKT. For example, an empty XYZM
+point with SRID 4326 produces `SRID=4326;POINT ZM EMPTY`. For collections,
+the prefix appears only once, before the outermost geometry; nested members
+retain their WKT representation without additional SRID prefixes.
+
+The strategy performs no coordinate transformation. Its dimension markers
+follow `WktTextStrategy`, so the text can differ from PostGIS's own formatting.
+
+Reference: [PostGIS EWKT output: ST_AsEWKT](https://postgis.net/docs/ST_AsEWKT.html).
 
 ## WKB — `WkbBinaryStrategy`
 

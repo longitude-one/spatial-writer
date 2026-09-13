@@ -104,3 +104,11 @@ Run this additional suite independently:
 ```bash
 vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples
 ```
+
+
+## EWKT strategy
+
+Run `vendor/bin/phpunit --no-coverage --filter EwktStrategyTest` for explicit
+EWKT examples. These tests cover nonzero, zero, and default SRIDs; empty
+values; Z/M/ZM dimensions; nested collections with a single outer SRID
+prefix; repeated conversions; and integration with `Writer`.
