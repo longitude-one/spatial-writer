@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter;
 
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
-use LongitudeOne\SpatialWriter\Strategy\BinaryStrategyInterface;
+use LongitudeOne\SpatialWriter\Strategy\StrategyInterface;
 
 /**
  * Writer class.
@@ -28,9 +28,9 @@ class Writer implements WriterInterface
     /**
      * Writer constructor.
      *
-     * @param BinaryStrategyInterface $strategy The converter
+     * @param StrategyInterface $strategy The converter
      */
-    public function __construct(private BinaryStrategyInterface $strategy)
+    public function __construct(private StrategyInterface $strategy)
     {
     }
 
@@ -39,7 +39,7 @@ class Writer implements WriterInterface
      *
      * @param SpatialInterface $spatial The spatial interface to convert
      *
-     * @return string a binary string representing the spatial interface in the format specified by the internal adapter
+     * @return string a string representing the spatial interface in the format specified by the strategy
      */
     public function convert(SpatialInterface $spatial): string
     {
@@ -49,7 +49,7 @@ class Writer implements WriterInterface
     /**
      * Get the current strategy.
      */
-    public function getStrategy(): BinaryStrategyInterface
+    public function getStrategy(): StrategyInterface
     {
         return $this->strategy;
     }
@@ -57,11 +57,11 @@ class Writer implements WriterInterface
     /**
      * Set a new strategy to use.
      *
-     * @param BinaryStrategyInterface $strategy the strategy to use
+     * @param StrategyInterface $strategy the strategy to use
      *
      * @return self the current instance
      */
-    public function setStrategy(BinaryStrategyInterface $strategy): self
+    public function setStrategy(StrategyInterface $strategy): self
     {
         $this->strategy = $strategy;
 

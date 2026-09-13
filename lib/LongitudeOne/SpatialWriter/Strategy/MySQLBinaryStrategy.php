@@ -29,7 +29,7 @@ use LongitudeOne\SpatialWriter\Strategy\MySQL\MySQLTypeEncoder;
  *
  * This class is responsible for converting a spatial interface to the internal MySQL storage format.
  */
-class MySQLBinaryStrategy implements BinaryStrategyInterface
+class MySQLBinaryStrategy implements StrategyInterface
 {
     /**
      * @var MySQLGeometryEncoder encoder for MySQL geometry coordinate payloads

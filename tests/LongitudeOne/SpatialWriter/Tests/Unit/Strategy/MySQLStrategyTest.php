@@ -24,13 +24,13 @@ use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
-use LongitudeOne\SpatialTypes\Types\Geometry\GeometryCollection;
-use LongitudeOne\SpatialTypes\Types\Geometry\LineString;
-use LongitudeOne\SpatialTypes\Types\Geometry\MultiLineString;
-use LongitudeOne\SpatialTypes\Types\Geometry\MultiPoint;
-use LongitudeOne\SpatialTypes\Types\Geometry\MultiPolygon;
-use LongitudeOne\SpatialTypes\Types\Geometry\Point;
-use LongitudeOne\SpatialTypes\Types\Geometry\Polygon;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\GeometryCollection;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPolygon;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Polygon;
 use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -119,13 +119,13 @@ class MySQLStrategyTest extends TestCase
 
         // Collection with SRID
         yield 'SRID=4326;COLLECTION EMPTY' => [
-            (new GeometryCollection())->setSrid(4326),
+            new GeometryCollection(4326),
             self::GEOMETRY_COLLECTION_EMPTY_WITH_SRID_4326,
         ];
 
         // Collection with a point and a SRID YX
         yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(42.1 42.42))' => [
-            (new GeometryCollection(4326))->addElement(new Point(42.1, 42.42)),
+            new GeometryCollection(4326, [new Point(42.1, 42.42, 4326)]),
             self::GEOMETRY_COLLECTION_WITH_POINT,
         ];
     }
@@ -159,13 +159,13 @@ class MySQLStrategyTest extends TestCase
 
         // Linestring with SRID XY
         yield 'SRID=7035;LINESTRING(0 0, 1 2, 2.2 2.4)' => [
-            (new LineString([[0, 0], [1, 2], [2.2, 2.4]]))->setSrid(7035),
+            new LineString([[0, 0], [1, 2], [2.2, 2.4]], 7035),
             self::LINE_STRING_EXPECTED_WITH_SRID_7035,
         ];
 
         // Linestring with SRID YX
         yield 'SRID=4326;LINESTRING(0 0, 1 2, 2.2 2.4)' => [
-            (new LineString([[0, 0], [1, 2], [2.2, 2.4]]))->setSrid(4326),
+            new LineString([[0, 0], [1, 2], [2.2, 2.4]], 4326),
             self::LINE_STRING_EXPECTED_WITH_SRID_4326,
         ];
     }
@@ -283,7 +283,7 @@ class MySQLStrategyTest extends TestCase
     {
         // POINT With SRID
         yield 'SRID=4326;POINT(0 0)' => [
-            (new Point(0, 0))->setSrid(4326),
+            new Point(0, 0, 4326),
             self::POINT_EXPECTED_WITH_SRID_4326,
         ];
 
@@ -295,19 +295,19 @@ class MySQLStrategyTest extends TestCase
 
         // POINT With SRID 0
         yield 'SRID=0;POINT(-1 -2)' => [
-            (new Point(-1, -2))->setSrid(0),
+            new Point(-1, -2, 0),
             self::POINT_EXPECTED_WITH_SRID_0,
         ];
 
         // POINT with float values and YX SRID
         yield 'SRID=4326;POINT(42.1 42.42)' => [
-            (new Point(42.1, 42.42))->setSrid(4326),
+            new Point(42.1, 42.42, 4326),
             self::POINT_EXPECTED_WITH_FLOATS_AND_SRID_4326,
         ];
 
         // POINT with XY SRID
         yield 'SRID=7035;POINT(42.1 42.42)' => [
-            (new Point(42.1, 42.42))->setSrid(7035),
+            new Point(42.1, 42.42, 7035),
             self::POINT_EXPECTED_WITH_FLOATS_AND_SRID_7035,
         ];
     }
@@ -344,19 +344,19 @@ class MySQLStrategyTest extends TestCase
 
         // Polygon with two lines and one SRID YX
         yield 'SRID=4326;POLYGON((0 0, 0 1, 1 1, 1 0, 0 0),(0 0, 1 2, 2.2 2.4, 6 6, 0 0))' => [
-            (new Polygon([
+            new Polygon([
                 [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],
                 [[0, 0], [1, 2], [2.2, 2.4], [6, 6], [0, 0]],
-            ]))->setSrid(4326),
+            ], 4326),
             self::POLYGON_EXPECTED_WITH_SRID_4326,
         ];
 
         // Polygon with two lines and one SRID XY
         yield 'SRID=7035;POLYGON((0 0, 0 1, 1 1, 1 0, 0 0),(0 0, 1 2, 2.2 2.4, 6 6, 0 0))' => [
-            (new Polygon([
+            new Polygon([
                 [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],
                 [[0, 0], [1, 2], [2.2, 2.4], [6, 6], [0, 0]],
-            ]))->setSrid(7035),
+            ], 7035),
             self::POLYGON_EXPECTED_WITH_SRID_7035,
         ];
     }

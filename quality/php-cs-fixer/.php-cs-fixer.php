@@ -29,6 +29,7 @@ $header = str_replace("%year%", __copyright($firstYear), $header);
 $finder = PhpCsFixer\Finder::create()
     ->in([
         __DIR__ . '/../../lib/',
+        __DIR__ . '/../../quality/',
         __DIR__ . '/../../tests/',
     ]);
 

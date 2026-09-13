@@ -17,7 +17,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "longitude-one/spatial-types": "0.0.*"
+        "longitude-one/spatial-types": "0.0.1-alpha.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^13",
@@ -41,10 +41,21 @@
         ],
         "test": "phpunit",
         "test-local": [
-            "phpunit",
-            "sed -i.bak 's|/var/www/|./|g' .phpunit-cache/coverage.xml",
-            "rm .phpunit-cache/coverage.xml.bak",
+            "@test",
             "cat .phpunit-cache/coverage-results.txt"
+        ],
+        "install-quality-tools": [
+            "composer install --working-dir=quality/php-cs-fixer",
+            "composer install --working-dir=quality/php-stan",
+            "composer install --working-dir=quality/php-mess-detector",
+            "composer install --working-dir=quality/php-code-sniffer"
+        ],
+        "upgrade-quality-tools": [
+            "composer update",
+            "composer update --working-dir=quality/php-cs-fixer",
+            "composer update --working-dir=quality/php-stan",
+            "composer update --working-dir=quality/php-mess-detector",
+            "composer update --working-dir=quality/php-code-sniffer"
         ]
     }
 }

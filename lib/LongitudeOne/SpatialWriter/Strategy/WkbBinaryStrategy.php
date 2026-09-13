@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Strategy;
 
-use LongitudeOne\SpatialTypes\Enum\TypeEnum;
+use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
@@ -33,7 +33,7 @@ use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
  *
  * This class is responsible for converting a spatial interface to its well-known binary representation.
  */
-class WkbBinaryStrategy implements BinaryStrategyInterface
+class WkbBinaryStrategy implements StrategyInterface
 {
     /**
      * Convert a spatial interface to its well-known binary representation.
@@ -237,14 +237,14 @@ class WkbBinaryStrategy implements BinaryStrategyInterface
     private function writeType(SpatialInterface $spatial): string
     {
         return match ($spatial->getType()) {
-            TypeEnum::POINT->value => pack('L', 1),
-            TypeEnum::LINESTRING->value => pack('L', 2),
-            TypeEnum::POLYGON->value => pack('L', 3),
-            TypeEnum::MULTIPOINT->value => pack('L', 4),
-            TypeEnum::MULTILINESTRING->value => pack('L', 5),
-            TypeEnum::MULTIPOLYGON->value => pack('L', 6),
-            TypeEnum::COLLECTION->value => pack('L', 7),
-            default => throw new UnsupportedSpatialTypeException(sprintf('WKB adapter does not support spatial type %s', $spatial->getType()))
+            GeometryTypeEnum::POINT => pack('L', 1),
+            GeometryTypeEnum::LINESTRING => pack('L', 2),
+            GeometryTypeEnum::POLYGON => pack('L', 3),
+            GeometryTypeEnum::MULTIPOINT => pack('L', 4),
+            GeometryTypeEnum::MULTILINESTRING => pack('L', 5),
+            GeometryTypeEnum::MULTIPOLYGON => pack('L', 6),
+            GeometryTypeEnum::GEOMETRYCOLLECTION => pack('L', 7),
+            default => throw new UnsupportedSpatialTypeException(sprintf('WKB adapter does not support spatial type %s', $spatial->getType()->value))
         };
     }
 }

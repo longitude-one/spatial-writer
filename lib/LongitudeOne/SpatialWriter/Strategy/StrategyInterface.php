@@ -19,18 +19,14 @@ namespace LongitudeOne\SpatialWriter\Strategy;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 
 /**
- * This interface implements the strategy pattern.
- * It is used to convert a spatial interface to a binary string.
- * The strategy is implemented by each class implementing the current interface.
+ * Converts spatial objects to a binary or textual representation.
  */
-interface BinaryStrategyInterface
+interface StrategyInterface
 {
     /**
-     * Convert a spatial interface to another representation.
+     * Convert a spatial object to the strategy's output format.
      *
-     * @param SpatialInterface $spatial the spatial interface to convert
-     *
-     * @return string a string representing the spatial interface in the implemented representation
+     * @param SpatialInterface $spatial the spatial object to convert
      */
     public function executeStrategy(SpatialInterface $spatial): string;
 }

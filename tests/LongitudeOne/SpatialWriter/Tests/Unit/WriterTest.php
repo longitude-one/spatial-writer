@@ -16,10 +16,11 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Tests\Unit;
 
-use LongitudeOne\SpatialTypes\Types\Geometry\Point;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Strategy\EwkbBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
+use LongitudeOne\SpatialWriter\Strategy\WktTextStrategy;
 use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +38,7 @@ class WriterTest extends TestCase
     {
         $strategy = new MySQLBinaryStrategy();
         $writer = new Writer($strategy);
-        $point = (new Point(1, 2))->setSrid(4326);
+        $point = new Point(1, 2, 4326);
         static::assertSame(
             $strategy->executeStrategy($point),
             $writer->convert($point)
@@ -51,7 +52,7 @@ class WriterTest extends TestCase
     {
         $strategy = new WkbBinaryStrategy();
         $writer = new Writer($strategy);
-        $point = (new Point(1, 2))->setSrid(4326);
+        $point = new Point(1, 2, 4326);
         static::assertSame(
             $strategy->executeStrategy($point),
             $writer->convert($point)
@@ -68,7 +69,7 @@ class WriterTest extends TestCase
         $writer = new Writer($badStrategy);
         static::assertSame($badStrategy, $writer->getStrategy());
         $writer->setStrategy($strategy);
-        $point = (new Point(1, 2))->setSrid(4326);
+        $point = new Point(1, 2, 4326);
         static::assertSame(
             $strategy->executeStrategy($point),
             $writer->convert($point)
@@ -77,5 +78,20 @@ class WriterTest extends TestCase
             $badStrategy->executeStrategy($point),
             $writer->convert($point)
         );
+    }
+
+    /** Test text strategies can be supplied and exchanged with binary strategies. */
+    public function testTextWriter(): void
+    {
+        $point = new Point(1, 2, 4326);
+        $textStrategy = new WktTextStrategy();
+        $binaryStrategy = new WkbBinaryStrategy();
+        $writer = new Writer($textStrategy);
+        static::assertSame($textStrategy, $writer->getStrategy());
+        static::assertSame('POINT (1 2)', $writer->convert($point));
+        static::assertSame($writer, $writer->setStrategy($binaryStrategy));
+        static::assertSame($binaryStrategy->executeStrategy($point), $writer->convert($point));
+        $writer->setStrategy($textStrategy);
+        static::assertSame('POINT (1 2)', $writer->convert($point));
     }
 }

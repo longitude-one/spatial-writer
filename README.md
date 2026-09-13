@@ -2,12 +2,16 @@
 
 The writer module provide an interface to convert any SpatialInterfaces to other formats.
 
-This library provide three strategies to convert spatial interfaces to other formats:
+This library provides four strategies to convert spatial interfaces to other formats:
  * A strategy to convert any spatial interfaces to extended well known binary (EWKB).
  * Another one to convert any spatial interfaces to well known binary (WKB).
- * A last one to convert any spatial interfaces to the internal MySQL storage format.
+ * A strategy to convert spatial interfaces to the internal MySQL storage format.
+ * A strategy to convert spatial interfaces to well-known text (WKT).
 
 Feel free to provide any other strategy to convert spatial interfaces to other formats.
+
+See the [strategy guide](docs/strategies.md) for a comparison of the four formats,
+usage examples, implementation limits, and links to reference documentation.
 
 
 ## Current status
@@ -26,3 +30,4 @@ Feel free to provide any other strategy to convert spatial interfaces to other f
 ```bash
 composer require longitude-one/spatial-writer
 ```
+

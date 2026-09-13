@@ -24,13 +24,13 @@ use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
-use LongitudeOne\SpatialTypes\Types\Geometry\GeometryCollection;
-use LongitudeOne\SpatialTypes\Types\Geometry\LineString;
-use LongitudeOne\SpatialTypes\Types\Geometry\MultiLineString;
-use LongitudeOne\SpatialTypes\Types\Geometry\MultiPoint;
-use LongitudeOne\SpatialTypes\Types\Geometry\MultiPolygon;
-use LongitudeOne\SpatialTypes\Types\Geometry\Point as GeometricPoint;
-use LongitudeOne\SpatialTypes\Types\Geometry\Polygon;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\GeometryCollection;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPolygon;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point as GeometricPoint;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Polygon;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\SpatialWriter\Strategy\EwkbBinaryStrategy;
@@ -122,38 +122,40 @@ class EwkbStrategyTest extends TestCase
 
         // Collection with SRID
         yield 'SRID=4326;COLLECTION EMPTY' => [
-            (new GeometryCollection())->setSrid(4326),
+            new GeometryCollection(4326),
             self::GEOMETRY_COLLECTION_EMPTY_WITH_SRID_YX,
         ];
 
         // Collection with a point and a SRID YX
         yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(0 0))' => [
-            (new GeometryCollection(4326))->addElement(new GeometricPoint(42.1, 42.42)),
+            new GeometryCollection(4326, [new GeometricPoint(42.1, 42.42, 4326)]),
             self::GEOMETRY_COLLECTION_WITH_POINT_SRID,
         ];
 
         // Collection with a point and a LineString
         yield 'GEOMETRYCOLLECTION(POINT(42.1 42.42, LINESTRING(0 0, 0 -1, 1 2)' => [
-            (new GeometryCollection())
-                ->addElement(new GeometricPoint(42.1, 42.42))
-                ->addElement(new LineString([
+            new GeometryCollection(0, [
+                new GeometricPoint(42.1, 42.42),
+                new LineString([
                     new GeometricPoint(0, 0),
                     new GeometricPoint(0, -1),
                     new GeometricPoint(1, 2),
-                ])),
+                ]),
+            ]),
             self::GEOMETRY_COLLECTION_WITH_POINT_LINESTRING,
         ];
 
         // Collection with a COLLECTION
         // yield 'SRID=4326;GEOMETRYCOLLECTION(POINT(42.1 42.42), LINESTRING(0 0, 0 -1, 1 2), GEOMETRYCOLLECTION EMPTY)' => [
-        //     (new GeometryCollection(4326))
-        //         ->addElement(new GeometricPoint(42.1, 42.42))
-        //         ->addElement(new LineString([
-        //             new GeometricPoint(0,0),
-        //             new GeometricPoint(0,-1),
-        //             new GeometricPoint(1,2),
-        //         ]))
-        //         ->addElement(new GeometryCollection()),
+        //     new GeometryCollection(4326, [
+        //         new GeometricPoint(42.1, 42.42, 4326),
+        //         new LineString([
+        //             new GeometricPoint(0, 0, 4326),
+        //             new GeometricPoint(0, -1, 4326),
+        //             new GeometricPoint(1, 2, 4326),
+        //         ], 4326),
+        //         new GeometryCollection(4326),
+        //     ]),
         //     self::GEOMETRY_COLLECTION_EMBEDDED,
         // ];
     }
@@ -200,13 +202,13 @@ class EwkbStrategyTest extends TestCase
 
         // Let's try a line-string with a YX SRID
         yield 'SRID=4326;LINESTRING(0 0, 1 1)' => [
-            (new LineString([$origin, $destination]))->setSrid(self::SRID_YX),
+            new LineString([new GeometricPoint(0, 0, self::SRID_YX), new GeometricPoint(1, 1, self::SRID_YX)], self::SRID_YX),
             self::LINE_STRING_EXPECTED_WITH_SRID_YX,
         ];
 
         // Let's try a line-string with a XY SRID
         yield 'SRID=7035;LINESTRING(0 0, 1 1)' => [
-            (new LineString([$origin, $destination]))->setSrid(self::SRID_XY),
+            new LineString([new GeometricPoint(0, 0, self::SRID_XY), new GeometricPoint(1, 1, self::SRID_XY)], self::SRID_XY),
             self::LINE_STRING_EXPECTED_WITH_SRID_XY,
         ];
     }
@@ -377,7 +379,7 @@ class EwkbStrategyTest extends TestCase
 
         // Let's add a SRID to the point
         yield 'SRID=4326;GEOMETRIC POINT(0 0)' => [
-            (new GeometricPoint(0, 0))->setSrid(self::SRID_YX),
+            new GeometricPoint(0, 0, self::SRID_YX),
             self::POINT_EXPECTED_WITH_SRID_YX,
         ];
 
@@ -401,13 +403,13 @@ class EwkbStrategyTest extends TestCase
 
         // Let's check that the SRID YX does NOT affect the result
         yield 'SRID=4326;POINT(1 -1)' => [
-            (new GeometricPoint(1, -1))->setSrid(self::SRID_YX),
+            new GeometricPoint(1, -1, self::SRID_YX),
             self::POINT_EXPECTED_WITH_SRID_YX_NO_EFFECT,
         ];
 
         // Let's check that the SRID XY does NOT affect the result
         yield 'SRID=7035; POINT(1 -1)' => [
-            (new GeometricPoint(1, -1))->setSrid(self::SRID_XY),
+            new GeometricPoint(1, -1, self::SRID_XY),
             self::POINT_EXPECTED_WITH_SRID_XY_NO_EFFECT,
         ];
     }
