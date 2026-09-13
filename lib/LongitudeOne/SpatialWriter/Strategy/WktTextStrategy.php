@@ -45,7 +45,7 @@ class WktTextStrategy implements StrategyInterface
      */
     public function executeStrategy(SpatialInterface $spatial): string
     {
-        return (new WktTypeEncoder())->writeType($spatial).' '.$this->writeBody($spatial);
+        return $this->writeGeometry($spatial);
     }
 
     /**
@@ -92,9 +92,19 @@ class WktTextStrategy implements StrategyInterface
             $spatial instanceof MultiLineStringInterface => $this->writeMembers($spatial->getLineStrings()),
             $spatial instanceof MultiPolygonInterface => $this->writeMembers($spatial->getPolygons()),
             $spatial instanceof PolyhedralSurfaceInterface => $this->writeMembers($spatial->getPatches()),
-            $spatial instanceof CollectionInterface => implode(', ', array_map($this->executeStrategy(...), $spatial->getElements())),
+            $spatial instanceof CollectionInterface => implode(', ', array_map($this->writeGeometry(...), $spatial->getElements())),
             default => throw new UnsupportedSpatialInterfaceException($spatial::class),
         };
+    }
+
+    /**
+     * Write a complete WKT geometry, keeping collection members free of prefixes.
+     *
+     * @param SpatialInterface $spatial the spatial object to convert
+     */
+    private function writeGeometry(SpatialInterface $spatial): string
+    {
+        return (new WktTypeEncoder())->writeType($spatial).' '.$this->writeBody($spatial);
     }
 
     /**
