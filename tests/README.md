@@ -32,7 +32,7 @@ Remove the `0x` before the result
 public function testCollection(CollectionInterface $collection, string $expected): void
 {
     //Create an empty spatial collection with 4326 as SRID
-    $collection - new Collection()->setSrid(4326);
+    $collection = new GeometryCollection(4326);
     //Assert that expected string is the same than the result of our strategy
     static::assertSame(
         'e6100000010700000000000000', 

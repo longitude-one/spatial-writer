@@ -119,7 +119,7 @@ class MySQLStrategyTest extends TestCase
 
         // Collection with SRID
         yield 'SRID=4326;COLLECTION EMPTY' => [
-            (new GeometryCollection())->setSrid(4326),
+            new GeometryCollection(4326),
             self::GEOMETRY_COLLECTION_EMPTY_WITH_SRID_4326,
         ];
 
@@ -159,13 +159,13 @@ class MySQLStrategyTest extends TestCase
 
         // Linestring with SRID XY
         yield 'SRID=7035;LINESTRING(0 0, 1 2, 2.2 2.4)' => [
-            (new LineString([[0, 0], [1, 2], [2.2, 2.4]]))->setSrid(7035),
+            new LineString([[0, 0], [1, 2], [2.2, 2.4]], 7035),
             self::LINE_STRING_EXPECTED_WITH_SRID_7035,
         ];
 
         // Linestring with SRID YX
         yield 'SRID=4326;LINESTRING(0 0, 1 2, 2.2 2.4)' => [
-            (new LineString([[0, 0], [1, 2], [2.2, 2.4]]))->setSrid(4326),
+            new LineString([[0, 0], [1, 2], [2.2, 2.4]], 4326),
             self::LINE_STRING_EXPECTED_WITH_SRID_4326,
         ];
     }
@@ -283,7 +283,7 @@ class MySQLStrategyTest extends TestCase
     {
         // POINT With SRID
         yield 'SRID=4326;POINT(0 0)' => [
-            (new Point(0, 0))->setSrid(4326),
+            new Point(0, 0, 4326),
             self::POINT_EXPECTED_WITH_SRID_4326,
         ];
 
@@ -295,19 +295,19 @@ class MySQLStrategyTest extends TestCase
 
         // POINT With SRID 0
         yield 'SRID=0;POINT(-1 -2)' => [
-            (new Point(-1, -2))->setSrid(0),
+            new Point(-1, -2, 0),
             self::POINT_EXPECTED_WITH_SRID_0,
         ];
 
         // POINT with float values and YX SRID
         yield 'SRID=4326;POINT(42.1 42.42)' => [
-            (new Point(42.1, 42.42))->setSrid(4326),
+            new Point(42.1, 42.42, 4326),
             self::POINT_EXPECTED_WITH_FLOATS_AND_SRID_4326,
         ];
 
         // POINT with XY SRID
         yield 'SRID=7035;POINT(42.1 42.42)' => [
-            (new Point(42.1, 42.42))->setSrid(7035),
+            new Point(42.1, 42.42, 7035),
             self::POINT_EXPECTED_WITH_FLOATS_AND_SRID_7035,
         ];
     }
@@ -344,19 +344,19 @@ class MySQLStrategyTest extends TestCase
 
         // Polygon with two lines and one SRID YX
         yield 'SRID=4326;POLYGON((0 0, 0 1, 1 1, 1 0, 0 0),(0 0, 1 2, 2.2 2.4, 6 6, 0 0))' => [
-            (new Polygon([
+            new Polygon([
                 [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],
                 [[0, 0], [1, 2], [2.2, 2.4], [6, 6], [0, 0]],
-            ]))->setSrid(4326),
+            ], 4326),
             self::POLYGON_EXPECTED_WITH_SRID_4326,
         ];
 
         // Polygon with two lines and one SRID XY
         yield 'SRID=7035;POLYGON((0 0, 0 1, 1 1, 1 0, 0 0),(0 0, 1 2, 2.2 2.4, 6 6, 0 0))' => [
-            (new Polygon([
+            new Polygon([
                 [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],
                 [[0, 0], [1, 2], [2.2, 2.4], [6, 6], [0, 0]],
-            ]))->setSrid(7035),
+            ], 7035),
             self::POLYGON_EXPECTED_WITH_SRID_7035,
         ];
     }

@@ -184,13 +184,13 @@ class WkbStrategyTest extends TestCase
 
         // Let's try a line-string with a YX SRID
         yield 'SRID=4326;LINESTRING(0 0, 1 1)' => [
-            (new LineString([$origin, $destination]))->setSrid(self::SRID_YX),
+            new LineString([new GeometricPoint(0, 0, self::SRID_YX), new GeometricPoint(1, 1, self::SRID_YX)], self::SRID_YX),
             self::LINE_STRING_EXPECTED_WITH_SRID_YX,
         ];
 
         // Let's try a line-string with a XY SRID
         yield 'SRID=7035;LINESTRING(0 0, 1 1)' => [
-            (new LineString([$origin, $destination]))->setSrid(self::SRID_XY),
+            new LineString([new GeometricPoint(0, 0, self::SRID_XY), new GeometricPoint(1, 1, self::SRID_XY)], self::SRID_XY),
             self::LINE_STRING_EXPECTED_WITH_SRID_XY,
         ];
     }
@@ -361,7 +361,7 @@ class WkbStrategyTest extends TestCase
 
         // Let's add a SRID to the point
         yield 'SRID=4326;GEOMETRIC POINT(0 0)' => [
-            (new GeometricPoint(0, 0))->setSrid(self::SRID_YX),
+            new GeometricPoint(0, 0, self::SRID_YX),
             self::POINT_EXPECTED_DEFAULT,
         ];
 
@@ -385,13 +385,13 @@ class WkbStrategyTest extends TestCase
 
         // Let's check that the SRID YX does NOT affect the result
         yield 'SRID=4326;POINT(1 -1)' => [
-            (new GeometricPoint(1, -1))->setSrid(self::SRID_YX),
+            new GeometricPoint(1, -1, self::SRID_YX),
             self::POINT_EXPECTED_WITH_INVERTED_COORDINATES,
         ];
 
         // Let's check that the SRID XY does NOT affect the result
         yield 'SRID=7035; POINT(1 -1)' => [
-            (new GeometricPoint(1, -1))->setSrid(self::SRID_XY),
+            new GeometricPoint(1, -1, self::SRID_XY),
             self::POINT_EXPECTED_WITH_INVERTED_COORDINATES,
         ];
     }

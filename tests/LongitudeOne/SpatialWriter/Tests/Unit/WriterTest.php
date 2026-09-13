@@ -37,7 +37,7 @@ class WriterTest extends TestCase
     {
         $strategy = new MySQLBinaryStrategy();
         $writer = new Writer($strategy);
-        $point = (new Point(1, 2))->setSrid(4326);
+        $point = new Point(1, 2, 4326);
         static::assertSame(
             $strategy->executeStrategy($point),
             $writer->convert($point)
@@ -51,7 +51,7 @@ class WriterTest extends TestCase
     {
         $strategy = new WkbBinaryStrategy();
         $writer = new Writer($strategy);
-        $point = (new Point(1, 2))->setSrid(4326);
+        $point = new Point(1, 2, 4326);
         static::assertSame(
             $strategy->executeStrategy($point),
             $writer->convert($point)
@@ -68,7 +68,7 @@ class WriterTest extends TestCase
         $writer = new Writer($badStrategy);
         static::assertSame($badStrategy, $writer->getStrategy());
         $writer->setStrategy($strategy);
-        $point = (new Point(1, 2))->setSrid(4326);
+        $point = new Point(1, 2, 4326);
         static::assertSame(
             $strategy->executeStrategy($point),
             $writer->convert($point)
