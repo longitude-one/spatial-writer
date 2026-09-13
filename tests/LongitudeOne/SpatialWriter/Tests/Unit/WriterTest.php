@@ -20,6 +20,7 @@ use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Strategy\EwkbBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\MySQLBinaryStrategy;
 use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
+use LongitudeOne\SpatialWriter\Strategy\WktTextStrategy;
 use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\TestCase;
 
@@ -77,5 +78,20 @@ class WriterTest extends TestCase
             $badStrategy->executeStrategy($point),
             $writer->convert($point)
         );
+    }
+
+    /** Test text strategies can be supplied and exchanged with binary strategies. */
+    public function testTextWriter(): void
+    {
+        $point = new Point(1, 2, 4326);
+        $textStrategy = new WktTextStrategy();
+        $binaryStrategy = new WkbBinaryStrategy();
+        $writer = new Writer($textStrategy);
+        static::assertSame($textStrategy, $writer->getStrategy());
+        static::assertSame('POINT (1 2)', $writer->convert($point));
+        static::assertSame($writer, $writer->setStrategy($binaryStrategy));
+        static::assertSame($binaryStrategy->executeStrategy($point), $writer->convert($point));
+        $writer->setStrategy($textStrategy);
+        static::assertSame('POINT (1 2)', $writer->convert($point));
     }
 }

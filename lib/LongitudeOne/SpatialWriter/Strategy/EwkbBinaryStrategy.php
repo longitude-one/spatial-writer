@@ -40,7 +40,7 @@ use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
  * PostGIS extended formats are currently a superset of the OGC ones,
  * so that every valid OGC WKB/WKT is also valid EWKB/EWKT.
  */
-class EwkbBinaryStrategy implements BinaryStrategyInterface
+class EwkbBinaryStrategy implements StrategyInterface
 {
     /**
      * Convert a spatial interface to its extended well-known binary representation.

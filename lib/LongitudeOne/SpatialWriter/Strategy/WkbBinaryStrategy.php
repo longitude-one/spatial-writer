@@ -33,7 +33,7 @@ use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
  *
  * This class is responsible for converting a spatial interface to its well-known binary representation.
  */
-class WkbBinaryStrategy implements BinaryStrategyInterface
+class WkbBinaryStrategy implements StrategyInterface
 {
     /**
      * Convert a spatial interface to its well-known binary representation.

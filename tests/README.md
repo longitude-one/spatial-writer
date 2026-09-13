@@ -72,3 +72,35 @@ composer test-local
 This command generates a coverage report at ./phpunit-cache/coverage.xml that can be imported by your IDE to track code coverage.
 
 ![Sunburst](https://codecov.io/gh/longitude-one/spatial-writer/graphs/sunburst.svg?token=NIFES3ETWH)
+
+
+## WKT strategy
+
+Run `vendor/bin/phpunit --no-coverage --filter WktStrategyTest` for text output.
+The datasets exercise each available Geometry/Geography class and dimension,
+empty values, nested collections, polygon holes, numeric precision, and errors.
+Compare complete WKT strings, including parentheses and dimension markers.
+PostGIS `SELECT ST_AsText(ST_GeomFromText('POINT(42.1 42.42)', 4326));`
+provides reference output; whitespace around punctuation may differ.
+
+### Explicit WKT examples
+
+`LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples/` contains eight
+standalone test classes: `GeometryXyTest`, `GeometryXyzTest`, `GeometryXymTest`,
+`GeometryXyzmTest`, and their `Geography` equivalents.
+
+Each class spells out one populated and one empty example for every concrete
+type available in that family and dimension. Each test contains a direct
+constructor call with literal coordinates and a complete literal WKT assertion.
+There are no data providers, loops, shared fixtures, or calculated expected
+strings in these files. Populated and empty tests are adjacent.
+
+The 136 examples cover 68 concrete classes. Polyhedral surfaces are available
+only in XYZ and XYZM. Examples include polygon holes, multiple members, mixed
+collections, and adjacent surface patches.
+
+Run this additional suite independently:
+
+```bash
+vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples
+```
