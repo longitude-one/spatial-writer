@@ -227,7 +227,7 @@ class EwkbBinaryStrategy implements BinaryStrategyInterface
      */
     private function writeSrid(SpatialInterface $spatial): string
     {
-        return pack('L', $spatial->getSrid() ?? 0);
+        return pack('L', $spatial->getSrid());
     }
 
     /**
