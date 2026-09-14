@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Strategy;
 
-use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
@@ -24,80 +23,76 @@ use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PolyhedralSurfaceInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Strategy\Ewkb\EwkbTypeEncoder;
 
 /**
- * Strategy to convert a spatial interface to its extended well-known binary representation.
+ * Extended Well-Known Binary adapter for XY, XYZ, XYM and XYZM geometries.
  *
- * This strategy allows the context to convert a spatial interface into its extended well-known binary representation.
- * It is a binary representation of the spatial interface.
- * This representation is based on the PostGIS implementation.
- *
- * @see https://postgis.net/docs/using_postgis_dbmanagement.html#EWKB_EWKT
- *
- * PostGIS extended formats are currently a superset of the OGC ones,
- * so that every valid OGC WKB/WKT is also valid EWKB/EWKT.
+ * This class is responsible for converting a spatial interface to its well-known binary representation.
  */
 class EwkbBinaryStrategy implements StrategyInterface
 {
     /**
-     * Convert a spatial interface to its extended well-known binary representation.
+     * Convert a spatial interface to its well-known binary representation.
      *
-     * @param SpatialInterface $spatial the spatial interface to convert
+     * Well-Known binary representation is a standard binary format for representing simple and complex geometries,
+     * defined by the Open Geospatial Consortium (OGC).
+     *
+     * @see https://libgeos.org/specifications/wkb/#extended-wkb
+     *
+     * @param SpatialInterface $spatial the spatial interface to convert into EWKB format
      *
      * @return string a binary string representing the spatial interface in EWKB format
      *
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      */
     public function executeStrategy(SpatialInterface $spatial): string
     {
-        $ewkb = $this->writeFirstByte();
-        if (empty($spatial->getSrid())) {
-            // WKB mode: every valid OGC WKB/WKT is also valid EWKB/EWKT
-            $ewkb .= $this->writeType($spatial);
-            $ewkb .= $this->writeCoordinates($spatial);
-
-            return $ewkb;
-        }
-
-        // EWKB mode
-        $ewkb .= $this->writeTypeAndDimension($spatial);
-        $ewkb .= $this->writeSrid($spatial);
-        $ewkb .= $this->writeCoordinates($spatial);
-
-        return $ewkb;
+        return $this->writeGeometry($spatial, true);
     }
 
     /**
-     * Encode the collection into the internal MySQL format.
+     * Write the byte order.
+     *
+     * The byte order is always little endian.
+     *
+     * @return string a binary string representing the byte order in little endian
+     */
+    private function writeByteOrder(): string
+    {
+        // We always write into little endian
+        return pack('C', 1);
+    }
+
+    /**
+     * Encode each collection member with its own WKB header and dimension.
      *
      * @param CollectionInterface $collection the collection to encode
      *
-     * @return string a binary string representing the collection in the internal MySQL storage format
+     * @return string a binary string representing the collection members
      */
     private function writeCollection(CollectionInterface $collection): string
     {
-        $ewkb = pack('L', count($collection->getElements()));
+        $wkb = pack('V', count($collection->getElements()));
 
         foreach ($collection->getElements() as $element) {
-            $ewkb .= $this->writeFirstByte();
-            $ewkb .= $this->writeType($element);
-            $ewkb .= $this->writeCoordinates($element);
+            $wkb .= $this->writeGeometry($element);
         }
 
-        return $ewkb;
+        return $wkb;
     }
 
     /**
-     * Let's call the right method to write coordinates.
+     * Write the coordinates.
      *
-     * @param SpatialInterface $spatial the spatial interface to convert
+     * @param SpatialInterface $spatial the spatial interface to write
+     *
+     * @return string a binary string representing the coordinates
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeCoordinates(SpatialInterface $spatial): string
     {
@@ -109,159 +104,155 @@ class EwkbBinaryStrategy implements StrategyInterface
             $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial),
             $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial),
             $spatial instanceof CollectionInterface => $this->writeCollection($spatial),
+            $spatial instanceof PolyhedralSurfaceInterface => $this->writePolyhedralSurface($spatial),
 
             default => throw new UnsupportedSpatialInterfaceException($spatial::class),
         };
     }
 
     /**
-     * Write the first byte.
+     * Write a complete geometry, including the SRID only at the root.
      *
-     * @return string the first byte
+     * @param SpatialInterface $spatial     the geometry to encode
+     * @param bool             $includeSrid whether to include its spatial reference
      */
-    private function writeFirstByte(): string
+    private function writeGeometry(SpatialInterface $spatial, bool $includeSrid = false): string
     {
-        return pack('C', 1); // We always write into little endian
+        $includeSrid = $includeSrid && 0 !== $spatial->getSrid();
+        $wkb = $this->writeByteOrder();
+        $wkb .= (new EwkbTypeEncoder())->writeType($spatial, $includeSrid);
+        if ($includeSrid) {
+            $wkb .= pack('V', $spatial->getSrid());
+        }
+        $wkb .= $this->writeCoordinates($spatial);
+
+        return $wkb;
     }
 
     /**
      * Write a line string.
      *
      * @param LineStringInterface $lineString the line string to write
+     *
+     * @return string a binary string representing the line string
      */
     private function writeLineString(LineStringInterface $lineString): string
     {
-        $ewkb = pack('L', count($lineString->getPoints()));
+        $wkb = pack('V', count($lineString->getPoints()));
         foreach ($lineString->getPoints() as $point) {
-            $ewkb .= $this->writePoint($point);
+            $wkb .= $this->writePoint($point);
         }
 
-        return $ewkb;
+        return $wkb;
     }
 
     /**
-     * Write a multi line string.
+     * Write a multi-line string.
      *
-     * @param MultiLineStringInterface $multiLineString the multi line string to write
+     * @param MultiLineStringInterface $multiLineString the multi-line string to write
+     *
+     * @return string a binary string representing the multi-line string
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiLineString(MultiLineStringInterface $multiLineString): string
     {
-        $ewkb = pack('L', count($multiLineString->getLineStrings()));
+        $wkb = pack('V', count($multiLineString->getLineStrings()));
         foreach ($multiLineString->getLineStrings() as $lineString) {
-            $ewkb .= $this->executeStrategy($lineString);
+            $wkb .= $this->writeGeometry($lineString);
         }
 
-        return $ewkb;
+        return $wkb;
     }
 
     /**
      * Write a multipoint.
      *
-     * @param MultiPointInterface $multiPoint the multi point to write
+     * @param MultiPointInterface $multiPoint the multipoint to write
+     *
+     * @return string a binary string representing the multipoint
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiPoint(MultiPointInterface $multiPoint): string
     {
-        $ewkb = pack('L', count($multiPoint->getPoints()));
+        $wkb = pack('V', count($multiPoint->getPoints()));
+
         foreach ($multiPoint->getPoints() as $point) {
-            $ewkb .= $this->executeStrategy($point);
+            $wkb .= $this->writeGeometry($point);
         }
 
-        return $ewkb;
+        return $wkb;
     }
 
     /**
-     * Write a multi polygon.
+     * Write a multipolygon.
      *
-     * @param MultiPolygonInterface $multiPolygon the multi polygon to write
+     * @param MultiPolygonInterface $multiPolygon the multipolygon to write
+     *
+     * @return string a binary string representing the multipolygon
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiPolygon(MultiPolygonInterface $multiPolygon): string
     {
-        $ewkb = pack('L', count($multiPolygon->getPolygons()));
+        $wkb = pack('V', count($multiPolygon->getPolygons()));
         foreach ($multiPolygon->getPolygons() as $polygon) {
-            $ewkb .= $this->executeStrategy($polygon);
+            $wkb .= $this->writeGeometry($polygon);
         }
 
-        return $ewkb;
+        return $wkb;
     }
 
     /**
-     * Write coordinates of a point.
+     * Write a point.
      *
      * @param PointInterface $point the point to write
+     *
+     * @return string a binary string representing the point
      */
     private function writePoint(PointInterface $point): string
     {
-        return pack('dd', $point->getX(), $point->getY());
+        if ($point->isEmpty()) {
+            $dimension = 2 + ($point->hasZ() ? 1 : 0) + ($point->hasM() ? 1 : 0);
+
+            // Canonical little-endian IEEE-754 quiet NaN for every ordinate.
+            return str_repeat(pack('H*', '000000000000f87f'), $dimension);
+        }
+
+        return pack('e*', ...$point->toArray());
     }
 
     /**
-     * Write number of rings then coordinates of a polygon.
+     * Write a polygon.
      *
      * @param PolygonInterface $polygon the polygon to write
+     *
+     * @return string a binary string representing the polygon
      */
     private function writePolygon(PolygonInterface $polygon): string
     {
-        $ewkb = pack('L', count($polygon->getRings()));
-        $rings = $polygon->getRings();
+        $wkb = pack('V', count($polygon->getRings()));
 
-        foreach ($rings as $ring) {
-            $ewkb .= $this->writeLineString($ring);
+        foreach ($polygon->getRings() as $ring) {
+            $wkb .= $this->writeLineString($ring);
         }
 
-        return $ewkb;
+        return $wkb;
     }
 
     /**
-     * Write the SRID.
+     * Write a polyhedral surface as a count followed by complete polygon WKBs.
      *
-     * @param SpatialInterface $spatial the spatial interface to convert
+     * @param PolyhedralSurfaceInterface $surface the surface to write
      */
-    private function writeSrid(SpatialInterface $spatial): string
+    private function writePolyhedralSurface(PolyhedralSurfaceInterface $surface): string
     {
-        return pack('L', $spatial->getSrid());
-    }
+        $wkb = pack('V', count($surface->getPatches()));
+        foreach ($surface->getPatches() as $patch) {
+            $wkb .= $this->writeGeometry($patch);
+        }
 
-    /**
-     * Write the type.
-     *
-     * @param SpatialInterface $spatial the spatial interface to convert
-     *
-     * @throws UnsupportedSpatialTypeException when the spatial type is not supported
-     */
-    private function writeType(SpatialInterface $spatial): string
-    {
-        return match ($spatial->getType()) {
-            GeometryTypeEnum::POINT => pack('L', 1),
-            GeometryTypeEnum::LINESTRING => pack('L', 2),
-            GeometryTypeEnum::POLYGON => pack('L', 3),
-            GeometryTypeEnum::MULTIPOINT => pack('L', 4),
-            GeometryTypeEnum::MULTILINESTRING => pack('L', 5),
-            GeometryTypeEnum::MULTIPOLYGON => pack('L', 6),
-            GeometryTypeEnum::GEOMETRYCOLLECTION => pack('L', 7),
-            default => throw new UnsupportedSpatialTypeException($spatial->getType()->value),
-        };
-    }
-
-    /**
-     * Write the type and dimension.
-     * Important: longitude/doctrine-spatial does not support Z and M dimensions, yet.
-     *
-     * @param SpatialInterface $spatial the spatial interface to convert
-     *
-     * @throws UnsupportedSpatialTypeException when the spatial type is not supported
-     */
-    private function writeTypeAndDimension(SpatialInterface $spatial): string
-    {
-        // Version 5.0.2 doctrine/spatial does not supports Z and M, yet.
-        return $this->writeType($spatial) | pack('L', pow(2, 29));
+        return $wkb;
     }
 }
