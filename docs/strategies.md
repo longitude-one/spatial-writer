@@ -202,18 +202,19 @@ echo bin2hex($writer->convert($point));
 // e61000000101000000000000000000f03f0000000000000040
 ```
 
-The MySQL documentation states that only `GeometryCollection` can be empty
-in its internal format. Being able to create other empty objects in
-`spatial-types` therefore does not guarantee that MySQL will accept them.
+Only XY objects are accepted. Z, M and ZM inputs throw
+`UnsupportedDimensionException`, including empty collections with those
+dimensions. Empty points, lines, polygons and multi-geometries throw
+`UnsupportedSpatialTypeException`; only XY `GeometryCollection` (including
+`GeographyCollection`) may be empty. These checks also apply to nested members.
 
 Reference: [MySQL 8.4 spatial formats and internal storage](https://dev.mysql.com/doc/refman/8.4/en/gis-data-formats.html).
 
 ## Current Limitations and Test Examples
 
-The MySQL encoder reads only X and Y: additional Z or M coordinates are
-not yet preserved. It does not correctly handle `POINT EMPTY`. Use nonempty
-`Dimension2` objects with this encoder; WKB, EWKB, WKT and EWKT provide explicit support for
-empty values and additional dimensions.
+The MySQL encoder rejects additional dimensions and unsupported empty values.
+Use XY objects, with empty values limited to geometry collections. WKB, EWKB,
+WKT and EWKT support additional dimensions and other empty geometry types.
 
 The MySQL strategy declares little-endian byte order (`01`) and uses
 native-endian `pack()` calls for integers (coordinates are explicitly little-endian). Its current implementation

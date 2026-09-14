@@ -145,3 +145,19 @@ vendor/bin/phpunit --no-coverage --filter Ewkb
 
 For an independent PostGIS reference, use
 `SELECT encode(ST_AsEWKB(ST_GeomFromEWKT('SRID=4326;POINT Z (1 2 3)'), 'NDR'), 'hex');`.
+
+
+## MySQL rejected inputs
+
+`Strategy/MySQL/GeometryInvalidInputTest.php` and
+`Strategy/MySQL/GeographyInvalidInputTest.php` explicitly expect
+`UnsupportedDimensionException` for Z/M/ZM inputs and
+`UnsupportedSpatialTypeException` for unsupported empty geometries.
+Cases cover all six non-collection XY types, dimensional empty points and
+collections, nested empty points, and empty line/polygon members of
+multi-geometries. Existing coordinate-order tests verify that empty XY
+collections remain accepted.
+
+```bash
+vendor/bin/phpunit --no-coverage --filter InvalidInputTest
+```
