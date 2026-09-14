@@ -60,7 +60,7 @@ SELECT ST_AsEwkb(ST_GeomFromText('POINT(42.1 42.42)', 4326));
 This is the same process, but connect on a PostGis Database, and use this kind of request:
 
 ```sql
-SELECT ST_AsBinary(ST_GeomFromText('POINT(42.1 42.42)', 4326));
+SELECT encode(ST_AsBinary(ST_GeomFromText('POINT Z (1 2 3)', 4326), 'NDR'), 'hex');
 ```
 
 ## Coverage
@@ -112,3 +112,47 @@ Run `vendor/bin/phpunit --no-coverage --filter EwktStrategyTest` for explicit
 EWKT examples. These tests cover nonzero, zero, and default SRIDs; empty
 values; Z/M/ZM dimensions; nested collections with a single outer SRID
 prefix; repeated conversions; and integration with `Writer`.
+
+
+## Explicit ISO WKB examples
+
+`LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkb/Examples/` contains 136
+literal examples covering all 68 concrete classes in both Geometry and
+Geography families and all available XY, XYZ, XYM and XYZM dimensions.
+Each type has a populated and an empty example, with direct constructors,
+a complete hexadecimal expectation, and a WKT comment for readability.
+Expected bytes were verified independently with GDAL 3.6.4's
+`OGR_G_ExportToIsoWkb` using little-endian byte order. GDAL is not needed to
+run the tests. No expected bytes or geometry fixtures are built at runtime.
+
+These cases cover ISO type offsets, NaN empty points, polygon holes, triangles,
+and adjacent polyhedral patches. `WkbRegressionTest` adds nested collections
+with empty members and explicit failures for unsupported types/interfaces.
+Every example with SRID 4326 verifies that WKB omits the SRID.
+
+```bash
+vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkb
+```
+
+
+## Explicit EWKB examples
+
+`LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Ewkb/Examples/` contains 136
+literal examples: populated and empty values for all 68 concrete classes.
+Each test includes its complete constructor, WKT comment and expected hex.
+The expectations use the GDAL-verified ISO coordinate payloads with EWKB
+Z/M flags and a single outer SRID, following
+[PostGIS's encoding rules](https://github.com/postgis/postgis/blob/master/liblwgeom/lwout_wkb.c).
+They are fixed literals, independent of the PHP encoder; tests perform no
+fixture or expected-byte generation and require no database.
+
+`EwkbRegressionTest` covers zero SRIDs in every dimension, empty points,
+nested collections with empty members, and unsupported types/interfaces.
+Run all EWKB tests with:
+
+```bash
+vendor/bin/phpunit --no-coverage --filter Ewkb
+```
+
+For an independent PostGIS reference, use
+`SELECT encode(ST_AsEWKB(ST_GeomFromEWKT('SRID=4326;POINT Z (1 2 3)'), 'NDR'), 'hex');`.

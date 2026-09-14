@@ -11,17 +11,17 @@ the selected strategy. Conversion does not perform any reprojection.
 
 This table describes the capabilities of the repository's current implementation.
 
-| Class.                | Output                       | SRID in output    | Dimensions written | Usage                                                            |
-| --------------------- | ---------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `WktTextStrategy`     | WKT text                     | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
-| `EwktTextStrategy`    | EWKT text                    | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
-| `WkbBinaryStrategy`   | WKB binary                   | No                | XY                 | Exchanges with a standard WKB consumer                           |
-| `EwkbBinaryStrategy`  | EWKB binary                  | Yes, when nonzero | XY                 | Exchanges with a consumer of the extended PostGIS format         |
-| `MySQLBinaryStrategy` | Internal MySQL binary format | Yes, as a prefix  | XY                 | Integrations expecting spatial values in MySQL's internal format |
+| Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
+| --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
+| `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
+| `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
+| `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
+| `EwkbBinaryStrategy`  | EWKB Extended Well Known Binary | Yes, when nonzero | XY, XYZ, XYM, XYZM | Exchanges with a consumer of the extended PostGIS format         |
+| `MySQLBinaryStrategy` | Internal MySQL binary format    | Yes, as a prefix  | XY                 | Integrations expecting spatial values in MySQL's internal format |
 
-The three binary strategies support `Point`, `LineString`, `Polygon`,
+All strategies support `Point`, `LineString`, `Polygon`,
 `MultiPoint`, `MultiLineString`, `MultiPolygon`, and geometry collections.
-WKT and EWKT also support `Triangle` and `PolyhedralSurface`. Classes in the Geometry
+WKB, EWKB, WKT and EWKT also support `Triangle` and `PolyhedralSurface`. Classes in the Geometry
 and Geography families use the same output type names; for example,
 `GeographyCollection` becomes `GEOMETRYCOLLECTION`.
 
@@ -111,19 +111,42 @@ echo bin2hex($writer->convert($point));
 // 0101000000000000000000f03f0000000000000040
 ```
 
-The current output uses two-dimensional WKB. It does not implement the
-dimensional extensions of ISO WKB.
+The output follows ISO WKB in little-endian byte order on every platform.
+It preserves X Y, followed by Z and M when present. Type identifiers use
+`+1000` for XYZ, `+2000` for XYM, and `+3000` for XYZM; these are ISO offsets,
+not EWKB flags. Base identifiers are 1–7 for the standard geometries,
+15 for `PolyhedralSurface`, and 17 for `Triangle`.
 
-References: [GEOS WKB structure](https://libgeos.org/specifications/wkb/#standard-wkb),
-[PostGIS WKB conversion: ST_AsBinary](https://postgis.net/docs/ST_AsBinary.html).
+All concrete Geometry/Geography classes are supported. Polyhedral surfaces
+are available in XYZ and XYZM. Composite members carry their own WKB headers;
+polygon and triangle rings contain only point counts and coordinates.
+The SRID is omitted from both the outer geometry and its members.
+
+```php
+$pointZ = new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Point(1, 2, 3, 4326);
+echo bin2hex($writer->convert($pointZ));
+// 01e9030000000000000000f03f00000000000000400000000000000840
+```
+
+An empty point contains one IEEE-754 quiet NaN per ordinate
+(`000000000000f87f` in little-endian hexadecimal), preserving its dimensional
+type identifier. Other empty types contain a zero member or ring count.
+Nested empty members are retained. A consumer must support the corresponding
+ISO dimensions and geometry types to read this output.
+
+References: [GEOS WKB structure](https://libgeos.org/specifications/wkb/#iso-wkb),
+[PostGIS WKB conversion: ST_AsBinary](https://postgis.net/docs/ST_AsBinary.html),
+[GDAL geometry type identifiers](https://github.com/OSGeo/gdal/blob/master/ogr/ogr_core.h).
 
 ## EWKB — `EwkbBinaryStrategy`
 
 [This strategy](../lib/LongitudeOne/SpatialWriter/Strategy/EwkbBinaryStrategy.php)
 uses the PostGIS extension of WKB to include the SRID. When the SRID is
 nonzero, it sets the type's `0x20000000` flag and writes the SRID after the
-type. An SRID of zero produces a WKB representation without this additional
-field. Coordinate order remains X Y.
+type. An SRID of zero omits this field and flag. Coordinate order is X Y,
+followed by Z and M when present. Dimension flags remain present even with
+a zero SRID: `0x80000000` for Z, `0x40000000` for M, or both for ZM.
+These flags differ from ISO WKB dimensional offsets.
 
 ```php
 $writer->setStrategy(new EwkbBinaryStrategy());
@@ -131,9 +154,21 @@ echo bin2hex($writer->convert($point));
 // 0101000020e6100000000000000000f03f0000000000000040
 ```
 
-The EWKB format can represent Z and M, but this strategy currently writes
-only X and Y. This encoder does not implement all of PostGIS's broader
-capabilities, including support for triangles and polyhedral surfaces.
+All 68 concrete Geometry/Geography classes are supported in their available
+dimensions, including triangles and polyhedral surfaces. Empty points contain
+one quiet NaN per ordinate; other empty geometries contain a zero count.
+All integers and coordinates are explicitly little-endian.
+
+The SRID is written only in the outermost geometry, including when empty.
+Members of multi-geometries, collections and polyhedral surfaces inherit it;
+their individual headers retain their type and dimension flags. This also
+applies to nested collections. Earlier versions repeated the SRID in some
+multi-geometry members; output now follows PostGIS's single outer SRID.
+
+For example, `POINT Z (1 2 3)` with SRID 4326 produces
+`01010000a0e6100000000000000000f03f00000000000000400000000000000840`.
+Curved geometries and TIN remain unsupported because the current dependency
+provides no concrete classes for them.
 
 References: [GEOS EWKB flags and structure](https://libgeos.org/specifications/wkb/#extended-wkb),
 [PostGIS ST_AsEWKB documentation](https://postgis.net/docs/ST_AsEWKB.html).
@@ -165,20 +200,23 @@ Reference: [MySQL 8.4 spatial formats and internal storage](https://dev.mysql.co
 
 ## Current Limitations and Test Examples
 
-The binary encoders read only X and Y: additional Z or M coordinates are
-not yet preserved. They do not correctly handle `POINT EMPTY`. Use nonempty
-`Dimension2` objects with these encoders; WKT provides explicit support for
+The MySQL encoder reads only X and Y: additional Z or M coordinates are
+not yet preserved. It does not correctly handle `POINT EMPTY`. Use nonempty
+`Dimension2` objects with this encoder; WKB, EWKB, WKT and EWKT provide explicit support for
 empty values and additional dimensions.
 
-The binary strategies declare little-endian byte order (`01`) and use
-`pack()` calls in the machine's native byte order. Their current implementation
+The MySQL strategy declares little-endian byte order (`01`) and uses
+`pack()` calls in the machine's native byte order. Its current implementation
 therefore assumes a little-endian machine.
 
-Unsupported types throw an `UnsupportedSpatialTypeException`.
+Curved geometries and TIN have no concrete classes in the current dependency
+and are not implemented by WKB. Unsupported types throw an `UnsupportedSpatialTypeException`.
 An unrecognized spatial interface may throw an
 `UnsupportedSpatialInterfaceException`.
 
 For complete inputs and outputs, see the
+[explicit EWKB examples](../tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Ewkb/Examples/),
+[explicit WKB examples](../tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkb/Examples/),
 [explicit WKT examples](../tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples/)
 and the [testing guide](../tests/README.md). To add a format, implement
 `StrategyInterface` and pass the new strategy to `Writer`.
