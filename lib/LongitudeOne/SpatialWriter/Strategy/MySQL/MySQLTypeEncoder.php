@@ -23,6 +23,9 @@ use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 
 /**
  * Encodes MySQL geometry type identifiers.
+ *
+ * Use pack('V') for 32-bit integers: MySQL's internal format requires little-endian
+ * bytes. pack('L') uses the machine's native byte order and is not portable.
  */
 class MySQLTypeEncoder
 {
@@ -41,13 +44,13 @@ class MySQLTypeEncoder
         $this->validateInput($spatial);
 
         return match ($spatial->getType()) {
-            GeometryTypeEnum::POINT => pack('L', 1),
-            GeometryTypeEnum::LINESTRING => pack('L', 2),
-            GeometryTypeEnum::POLYGON => pack('L', 3),
-            GeometryTypeEnum::MULTIPOINT => pack('L', 4),
-            GeometryTypeEnum::MULTILINESTRING => pack('L', 5),
-            GeometryTypeEnum::MULTIPOLYGON => pack('L', 6),
-            GeometryTypeEnum::GEOMETRYCOLLECTION => pack('L', 7),
+            GeometryTypeEnum::POINT => pack('V', 1),
+            GeometryTypeEnum::LINESTRING => pack('V', 2),
+            GeometryTypeEnum::POLYGON => pack('V', 3),
+            GeometryTypeEnum::MULTIPOINT => pack('V', 4),
+            GeometryTypeEnum::MULTILINESTRING => pack('V', 5),
+            GeometryTypeEnum::MULTIPOLYGON => pack('V', 6),
+            GeometryTypeEnum::GEOMETRYCOLLECTION => pack('V', 7),
             default => throw new UnsupportedSpatialTypeException(sprintf('MySQL adapter does not support spatial type %s', $spatial->getType()->value)),
         };
     }

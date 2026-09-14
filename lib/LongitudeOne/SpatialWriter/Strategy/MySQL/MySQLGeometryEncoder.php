@@ -28,6 +28,9 @@ use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 
 /**
  * Encodes MySQL geometry coordinate payloads and nested geometry headers.
+ *
+ * Use pack('V') for 32-bit integers: MySQL's internal format requires little-endian
+ * bytes. pack('L') uses the machine's native byte order and is not portable.
  */
 class MySQLGeometryEncoder
 {
@@ -77,7 +80,7 @@ class MySQLGeometryEncoder
      */
     private function writeCollection(CollectionInterface $collection): string
     {
-        $binary = pack('L', count($collection->getElements()));
+        $binary = pack('V', count($collection->getElements()));
 
         foreach ($collection->getElements() as $element) {
             $binary .= $this->writeNestedGeometry($element);
@@ -95,7 +98,7 @@ class MySQLGeometryEncoder
      */
     private function writeLineString(LineStringInterface $lineString): string
     {
-        $binary = pack('L', count($lineString->getPoints()));
+        $binary = pack('V', count($lineString->getPoints()));
 
         foreach ($lineString->getPoints() as $point) {
             $binary .= $this->pointEncoder->writePoint($point);
@@ -114,7 +117,7 @@ class MySQLGeometryEncoder
     private function writeMultiLineString(MultiLineStringInterface $multiLineString): string
     {
         $lineStrings = $multiLineString->getLineStrings();
-        $binary = pack('L', count($lineStrings));
+        $binary = pack('V', count($lineStrings));
 
         foreach ($lineStrings as $lineString) {
             $binary .= $this->writeNestedGeometry($lineString);
@@ -132,7 +135,7 @@ class MySQLGeometryEncoder
      */
     private function writeMultiPoint(MultiPointInterface $multiPoint): string
     {
-        $binary = pack('L', count($multiPoint->getPoints()));
+        $binary = pack('V', count($multiPoint->getPoints()));
 
         foreach ($multiPoint->getPoints() as $point) {
             $binary .= $this->writeNestedGeometry($point);
@@ -150,7 +153,7 @@ class MySQLGeometryEncoder
      */
     private function writeMultiPolygon(MultiPolygonInterface $multiPolygon): string
     {
-        $binary = pack('L', count($multiPolygon->getPolygons()));
+        $binary = pack('V', count($multiPolygon->getPolygons()));
 
         foreach ($multiPolygon->getPolygons() as $polygon) {
             $binary .= $this->writeNestedGeometry($polygon);
@@ -182,7 +185,7 @@ class MySQLGeometryEncoder
      */
     private function writePolygon(PolygonInterface $polygon): string
     {
-        $binary = pack('L', count($polygon->getRings()));
+        $binary = pack('V', count($polygon->getRings()));
 
         foreach ($polygon->getRings() as $ring) {
             $binary .= $this->writeLineString($ring);

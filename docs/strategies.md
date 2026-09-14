@@ -216,9 +216,9 @@ The MySQL encoder rejects additional dimensions and unsupported empty values.
 Use XY objects, with empty values limited to geometry collections. WKB, EWKB,
 WKT and EWKT support additional dimensions and other empty geometry types.
 
-The MySQL strategy declares little-endian byte order (`01`) and uses
-native-endian `pack()` calls for integers (coordinates are explicitly little-endian). Its current implementation
-therefore assumes a little-endian machine.
+The MySQL strategy declares little-endian byte order (`01`) and explicitly
+uses it for SRIDs, type identifiers, counts and coordinates. Its output is
+independent of the machine's native byte order.
 
 Curved geometries and TIN have no concrete classes in the current dependency
 and are not implemented by WKB. Unsupported types throw an `UnsupportedSpatialTypeException`.
