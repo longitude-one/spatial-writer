@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Strategy;
 
-use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
@@ -24,12 +23,13 @@ use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
+use LongitudeOne\SpatialTypes\Interfaces\PolyhedralSurfaceInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
-use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Strategy\Wkb\WkbTypeEncoder;
 
 /**
- * Well-Known binary adapter.
+ * ISO Well-Known Binary adapter for XY, XYZ, XYM and XYZM geometries.
  *
  * This class is responsible for converting a spatial interface to its well-known binary representation.
  */
@@ -41,19 +41,18 @@ class WkbBinaryStrategy implements StrategyInterface
      * Well-Known binary representation is a standard binary format for representing simple and complex geometries,
      * defined by the Open Geospatial Consortium (OGC).
      *
-     * @see https://libgeos.org/specifications/wkb/#standard-wkb
+     * @see https://libgeos.org/specifications/wkb/#iso-wkb
      *
-     * @param SpatialInterface $spatial the spatial interface to convert into EWKB format
+     * @param SpatialInterface $spatial the spatial interface to convert into ISO WKB format
      *
-     * @return string a binary string representing the spatial interface in EWKB format
+     * @return string a binary string representing the spatial interface in ISO WKB format
      *
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      */
     public function executeStrategy(SpatialInterface $spatial): string
     {
         $wkb = $this->writeByteOrder();
-        $wkb .= $this->writeType($spatial);
+        $wkb .= (new WkbTypeEncoder())->writeType($spatial);
         $wkb .= $this->writeCoordinates($spatial);
 
         return $wkb;
@@ -73,20 +72,18 @@ class WkbBinaryStrategy implements StrategyInterface
     }
 
     /**
-     * Encode the collection into the internal MySQL format.
+     * Encode each collection member with its own WKB header and dimension.
      *
      * @param CollectionInterface $collection the collection to encode
      *
-     * @return string a binary string representing the collection in the internal MySQL storage format
+     * @return string a binary string representing the collection members
      */
     private function writeCollection(CollectionInterface $collection): string
     {
-        $wkb = pack('L', count($collection->getElements()));
+        $wkb = pack('V', count($collection->getElements()));
 
         foreach ($collection->getElements() as $element) {
-            $wkb .= $this->writeByteOrder();
-            $wkb .= $this->writeType($element);
-            $wkb .= $this->writeCoordinates($element);
+            $wkb .= $this->executeStrategy($element);
         }
 
         return $wkb;
@@ -100,7 +97,6 @@ class WkbBinaryStrategy implements StrategyInterface
      * @return string a binary string representing the coordinates
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeCoordinates(SpatialInterface $spatial): string
     {
@@ -112,6 +108,7 @@ class WkbBinaryStrategy implements StrategyInterface
             $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial),
             $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial),
             $spatial instanceof CollectionInterface => $this->writeCollection($spatial),
+            $spatial instanceof PolyhedralSurfaceInterface => $this->writePolyhedralSurface($spatial),
 
             default => throw new UnsupportedSpatialInterfaceException($spatial::class),
         };
@@ -126,7 +123,7 @@ class WkbBinaryStrategy implements StrategyInterface
      */
     private function writeLineString(LineStringInterface $lineString): string
     {
-        $wkb = pack('L', count($lineString->getPoints()));
+        $wkb = pack('V', count($lineString->getPoints()));
         foreach ($lineString->getPoints() as $point) {
             $wkb .= $this->writePoint($point);
         }
@@ -142,11 +139,10 @@ class WkbBinaryStrategy implements StrategyInterface
      * @return string a binary string representing the multi-line string
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */
     private function writeMultiLineString(MultiLineStringInterface $multiLineString): string
     {
-        $wkb = pack('L', count($multiLineString->getLineStrings()));
+        $wkb = pack('V', count($multiLineString->getLineStrings()));
         foreach ($multiLineString->getLineStrings() as $lineString) {
             $wkb .= $this->executeStrategy($lineString);
         }
@@ -161,12 +157,11 @@ class WkbBinaryStrategy implements StrategyInterface
      *
      * @return string a binary string representing the multipoint
      *
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      */
     private function writeMultiPoint(MultiPointInterface $multiPoint): string
     {
-        $wkb = pack('L', count($multiPoint->getPoints()));
+        $wkb = pack('V', count($multiPoint->getPoints()));
 
         foreach ($multiPoint->getPoints() as $point) {
             $wkb .= $this->executeStrategy($point);
@@ -182,12 +177,11 @@ class WkbBinaryStrategy implements StrategyInterface
      *
      * @return string a binary string representing the multipolygon
      *
-     * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      */
     private function writeMultiPolygon(MultiPolygonInterface $multiPolygon): string
     {
-        $wkb = pack('L', count($multiPolygon->getPolygons()));
+        $wkb = pack('V', count($multiPolygon->getPolygons()));
         foreach ($multiPolygon->getPolygons() as $polygon) {
             $wkb .= $this->executeStrategy($polygon);
         }
@@ -204,7 +198,14 @@ class WkbBinaryStrategy implements StrategyInterface
      */
     private function writePoint(PointInterface $point): string
     {
-        return pack('dd', $point->getX(), $point->getY());
+        if ($point->isEmpty()) {
+            $dimension = 2 + ($point->hasZ() ? 1 : 0) + ($point->hasM() ? 1 : 0);
+
+            // Canonical little-endian IEEE-754 quiet NaN for every ordinate.
+            return str_repeat(pack('H*', '000000000000f87f'), $dimension);
+        }
+
+        return pack('e*', ...$point->toArray());
     }
 
     /**
@@ -216,7 +217,7 @@ class WkbBinaryStrategy implements StrategyInterface
      */
     private function writePolygon(PolygonInterface $polygon): string
     {
-        $wkb = pack('L', count($polygon->getRings()));
+        $wkb = pack('V', count($polygon->getRings()));
 
         foreach ($polygon->getRings() as $ring) {
             $wkb .= $this->writeLineString($ring);
@@ -226,25 +227,17 @@ class WkbBinaryStrategy implements StrategyInterface
     }
 
     /**
-     * Write the type.
+     * Write a polyhedral surface as a count followed by complete polygon WKBs.
      *
-     * @param SpatialInterface $spatial the spatial interface to write
-     *
-     * @return string a binary string representing the type
-     *
-     * @throws UnsupportedSpatialTypeException when the spatial type is not supported
+     * @param PolyhedralSurfaceInterface $surface the surface to write
      */
-    private function writeType(SpatialInterface $spatial): string
+    private function writePolyhedralSurface(PolyhedralSurfaceInterface $surface): string
     {
-        return match ($spatial->getType()) {
-            GeometryTypeEnum::POINT => pack('L', 1),
-            GeometryTypeEnum::LINESTRING => pack('L', 2),
-            GeometryTypeEnum::POLYGON => pack('L', 3),
-            GeometryTypeEnum::MULTIPOINT => pack('L', 4),
-            GeometryTypeEnum::MULTILINESTRING => pack('L', 5),
-            GeometryTypeEnum::MULTIPOLYGON => pack('L', 6),
-            GeometryTypeEnum::GEOMETRYCOLLECTION => pack('L', 7),
-            default => throw new UnsupportedSpatialTypeException(sprintf('WKB adapter does not support spatial type %s', $spatial->getType()->value))
-        };
+        $wkb = pack('V', count($surface->getPatches()));
+        foreach ($surface->getPatches() as $patch) {
+            $wkb .= $this->executeStrategy($patch);
+        }
+
+        return $wkb;
     }
 }

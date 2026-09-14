@@ -15,13 +15,13 @@ This table describes the capabilities of the repository's current implementation
 | --------------------- | ---------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
 | `WktTextStrategy`     | WKT text                     | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT text                    | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
-| `WkbBinaryStrategy`   | WKB binary                   | No                | XY                 | Exchanges with a standard WKB consumer                           |
+| `WkbBinaryStrategy`   | ISO WKB binary               | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
 | `EwkbBinaryStrategy`  | EWKB binary                  | Yes, when nonzero | XY                 | Exchanges with a consumer of the extended PostGIS format         |
 | `MySQLBinaryStrategy` | Internal MySQL binary format | Yes, as a prefix  | XY                 | Integrations expecting spatial values in MySQL's internal format |
 
-The three binary strategies support `Point`, `LineString`, `Polygon`,
+All strategies support `Point`, `LineString`, `Polygon`,
 `MultiPoint`, `MultiLineString`, `MultiPolygon`, and geometry collections.
-WKT and EWKT also support `Triangle` and `PolyhedralSurface`. Classes in the Geometry
+WKB, WKT and EWKT also support `Triangle` and `PolyhedralSurface`. Classes in the Geometry
 and Geography families use the same output type names; for example,
 `GeographyCollection` becomes `GEOMETRYCOLLECTION`.
 
@@ -111,11 +111,32 @@ echo bin2hex($writer->convert($point));
 // 0101000000000000000000f03f0000000000000040
 ```
 
-The current output uses two-dimensional WKB. It does not implement the
-dimensional extensions of ISO WKB.
+The output follows ISO WKB in little-endian byte order on every platform.
+It preserves X Y, followed by Z and M when present. Type identifiers use
+`+1000` for XYZ, `+2000` for XYM, and `+3000` for XYZM; these are ISO offsets,
+not EWKB flags. Base identifiers are 1–7 for the standard geometries,
+15 for `PolyhedralSurface`, and 17 for `Triangle`.
 
-References: [GEOS WKB structure](https://libgeos.org/specifications/wkb/#standard-wkb),
-[PostGIS WKB conversion: ST_AsBinary](https://postgis.net/docs/ST_AsBinary.html).
+All concrete Geometry/Geography classes are supported. Polyhedral surfaces
+are available in XYZ and XYZM. Composite members carry their own WKB headers;
+polygon and triangle rings contain only point counts and coordinates.
+The SRID is omitted from both the outer geometry and its members.
+
+```php
+$pointZ = new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Point(1, 2, 3, 4326);
+echo bin2hex($writer->convert($pointZ));
+// 01e9030000000000000000f03f00000000000000400000000000000840
+```
+
+An empty point contains one IEEE-754 quiet NaN per ordinate
+(`000000000000f87f` in little-endian hexadecimal), preserving its dimensional
+type identifier. Other empty types contain a zero member or ring count.
+Nested empty members are retained. A consumer must support the corresponding
+ISO dimensions and geometry types to read this output.
+
+References: [GEOS WKB structure](https://libgeos.org/specifications/wkb/#iso-wkb),
+[PostGIS WKB conversion: ST_AsBinary](https://postgis.net/docs/ST_AsBinary.html),
+[GDAL geometry type identifiers](https://github.com/OSGeo/gdal/blob/master/ogr/ogr_core.h).
 
 ## EWKB — `EwkbBinaryStrategy`
 
@@ -165,20 +186,22 @@ Reference: [MySQL 8.4 spatial formats and internal storage](https://dev.mysql.co
 
 ## Current Limitations and Test Examples
 
-The binary encoders read only X and Y: additional Z or M coordinates are
+The EWKB and MySQL encoders read only X and Y: additional Z or M coordinates are
 not yet preserved. They do not correctly handle `POINT EMPTY`. Use nonempty
-`Dimension2` objects with these encoders; WKT provides explicit support for
+`Dimension2` objects with these two encoders; WKB, WKT and EWKT provide explicit support for
 empty values and additional dimensions.
 
-The binary strategies declare little-endian byte order (`01`) and use
+The EWKB and MySQL strategies declare little-endian byte order (`01`) and use
 `pack()` calls in the machine's native byte order. Their current implementation
 therefore assumes a little-endian machine.
 
-Unsupported types throw an `UnsupportedSpatialTypeException`.
+Curved geometries and TIN have no concrete classes in the current dependency
+and are not implemented by WKB. Unsupported types throw an `UnsupportedSpatialTypeException`.
 An unrecognized spatial interface may throw an
 `UnsupportedSpatialInterfaceException`.
 
 For complete inputs and outputs, see the
+[explicit WKB examples](../tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkb/Examples/),
 [explicit WKT examples](../tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples/)
 and the [testing guide](../tests/README.md). To add a format, implement
 `StrategyInterface` and pass the new strategy to `Writer`.

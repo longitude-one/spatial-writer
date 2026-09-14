@@ -1,0 +1,244 @@
+<?php
+/**
+ * This file is part of the binary-writer project.
+ *
+ * PHP 8.4 | 8.5
+ *
+ * Copyright Alexandre Tranchant <alexandre.tranchant@gmail.com> 2024-2026
+ * Copyright Longitude One 2024-2026
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ */
+
+declare(strict_types=1);
+
+namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\Wkb\Examples;
+
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\GeographyCollection;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\LineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\MultiLineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\MultiPoint;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\MultiPolygon;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\Point;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\Polygon;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\Triangle;
+use LongitudeOne\SpatialWriter\Strategy\Wkb\WkbTypeEncoder;
+use LongitudeOne\SpatialWriter\Strategy\WkbBinaryStrategy;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Explicit ISO WKB examples for two-dimensional Geography objects.
+ *
+ * @internal
+ */
+#[CoversClass(WkbBinaryStrategy::class)]
+#[CoversClass(WkbTypeEncoder::class)]
+class GeographyXyTest extends TestCase
+{
+    /** Write a geographic collection using the GEOMETRYCOLLECTION keyword. */
+    public function testGeographyCollection(): void
+    {
+        $collection = new GeographyCollection(4326, [
+            new Point(1, 2, 4326),
+            new LineString([[0, 0], [2, 3]], 4326),
+        ]);
+
+        // Reference geometry in WKT: GEOMETRYCOLLECTION (POINT (1 2), LINESTRING (0 0, 2 3))
+        static::assertSame(
+            '0107000000020000000101000000000000000000f03f00000000000000400102000000020000000000000000000000000000000000000000000000000000400000000000000840',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($collection))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty GeographyCollection. */
+    public function testGeographyCollectionEmpty(): void
+    {
+        $collection = new GeographyCollection(4326, []);
+
+        // Reference geometry in WKT: GEOMETRYCOLLECTION EMPTY
+        static::assertSame(
+            '010700000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($collection))
+        );
+    }
+
+    /** Write three points in their original order. */
+    public function testLineString(): void
+    {
+        $line = new LineString([[0, 0], [2, 3], [4, 1]], 4326);
+
+        // Reference geometry in WKT: LINESTRING (0 0, 2 3, 4 1)
+        static::assertSame(
+            '01020000000300000000000000000000000000000000000000000000000000004000000000000008400000000000001040000000000000f03f',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($line))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty LineString. */
+    public function testLineStringEmpty(): void
+    {
+        $line = new LineString([], 4326);
+
+        // Reference geometry in WKT: LINESTRING EMPTY
+        static::assertSame(
+            '010200000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($line))
+        );
+    }
+
+    /** Write two lines in their original order. */
+    public function testMultiLineString(): void
+    {
+        $lines = new MultiLineString([
+            [[0, 0], [2, 3]],
+            [[4, 1], [5, 2]],
+        ], 4326);
+
+        // Reference geometry in WKT: MULTILINESTRING ((0 0, 2 3), (4 1, 5 2))
+        static::assertSame(
+            '01050000000200000001020000000200000000000000000000000000000000000000000000000000004000000000000008400102000000020000000000000000001040000000000000f03f00000000000014400000000000000040',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($lines))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty MultiLineString. */
+    public function testMultiLineStringEmpty(): void
+    {
+        $lines = new MultiLineString([], 4326);
+
+        // Reference geometry in WKT: MULTILINESTRING EMPTY
+        static::assertSame(
+            '010500000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($lines))
+        );
+    }
+
+    /** Write two distinct points with their own WKB headers. */
+    public function testMultiPoint(): void
+    {
+        $points = new MultiPoint([[1, 2], [3, 4]], 4326);
+
+        // Reference geometry in WKT: MULTIPOINT ((1 2), (3 4))
+        static::assertSame(
+            '0104000000020000000101000000000000000000f03f0000000000000040010100000000000000000008400000000000001040',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($points))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty MultiPoint. */
+    public function testMultiPointEmpty(): void
+    {
+        $points = new MultiPoint([], 4326);
+
+        // Reference geometry in WKT: MULTIPOINT EMPTY
+        static::assertSame(
+            '010400000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($points))
+        );
+    }
+
+    /** Write two polygons with their own closed exterior rings. */
+    public function testMultiPolygon(): void
+    {
+        $polygons = new MultiPolygon([
+            [[[0, 0], [2, 0], [0, 2], [0, 0]]],
+            [[[3, 3], [5, 3], [3, 5], [3, 3]]],
+        ], 4326);
+
+        // Reference geometry in WKT: MULTIPOLYGON (((0 0, 2 0, 0 2, 0 0)), ((3 3, 5 3, 3 5, 3 3)))
+        static::assertSame(
+            '01060000000200000001030000000100000004000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000040000000000000000000000000000000000103000000010000000400000000000000000008400000000000000840000000000000144000000000000008400000000000000840000000000000144000000000000008400000000000000840',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($polygons))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty MultiPolygon. */
+    public function testMultiPolygonEmpty(): void
+    {
+        $polygons = new MultiPolygon([], 4326);
+
+        // Reference geometry in WKT: MULTIPOLYGON EMPTY
+        static::assertSame(
+            '010600000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($polygons))
+        );
+    }
+
+    /** Write a point with fractional and negative ordinates. */
+    public function testPoint(): void
+    {
+        $point = new Point(2.5, -3, 4326);
+
+        // Reference geometry in WKT: POINT (2.5 -3)
+        static::assertSame(
+            '0101000000000000000000044000000000000008c0',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($point))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty Point. */
+    public function testPointEmpty(): void
+    {
+        $point = new Point(srid: 4326);
+
+        // Reference geometry in WKT: POINT EMPTY
+        static::assertSame(
+            '0101000000000000000000f87f000000000000f87f',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($point))
+        );
+    }
+
+    /** Write an exterior ring followed by an interior hole. */
+    public function testPolygon(): void
+    {
+        $polygon = new Polygon([
+            [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+            [[1, 1], [1, 2], [2, 2], [2, 1], [1, 1]],
+        ], 4326);
+
+        // Reference geometry in WKT: POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0), (1 1, 1 2, 2 2, 2 1, 1 1))
+        static::assertSame(
+            '01030000000200000005000000000000000000000000000000000000000000000000001040000000000000000000000000000010400000000000001040000000000000000000000000000010400000000000000000000000000000000005000000000000000000f03f000000000000f03f000000000000f03f0000000000000040000000000000004000000000000000400000000000000040000000000000f03f000000000000f03f000000000000f03f',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($polygon))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty Polygon. */
+    public function testPolygonEmpty(): void
+    {
+        $polygon = new Polygon([], 4326);
+
+        // Reference geometry in WKT: POLYGON EMPTY
+        static::assertSame(
+            '010300000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($polygon))
+        );
+    }
+
+    /** Write three vertices and the closing position. */
+    public function testTriangle(): void
+    {
+        $triangle = new Triangle([[[0, 0], [2, 0], [0, 2], [0, 0]]], 4326);
+
+        // Reference geometry in WKT: TRIANGLE ((0 0, 2 0, 0 2, 0 0))
+        static::assertSame(
+            '0111000000010000000400000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000004000000000000000000000000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($triangle))
+        );
+    }
+
+    /** Preserve the type and dimension of an empty Triangle. */
+    public function testTriangleEmpty(): void
+    {
+        $triangle = new Triangle([], 4326);
+
+        // Reference geometry in WKT: TRIANGLE EMPTY
+        static::assertSame(
+            '011100000000000000',
+            bin2hex((new WkbBinaryStrategy())->executeStrategy($triangle))
+        );
+    }
+}

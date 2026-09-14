@@ -4,7 +4,7 @@ The writer module provide an interface to convert any SpatialInterfaces to other
 
 This library provides five strategies to convert spatial interfaces to other formats:
  * A strategy to convert any spatial interfaces to extended well known binary (EWKB).
- * Another one to convert any spatial interfaces to well known binary (WKB).
+ * Another one to convert any spatial interfaces to ISO well known binary (WKB).
  * A strategy to convert spatial interfaces to the internal MySQL storage format.
  * A strategy to convert spatial interfaces to well-known text (WKT).
  * A strategy to convert spatial interfaces to extended well-known text (EWKT), including a nonzero SRID.
