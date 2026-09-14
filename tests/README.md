@@ -30,7 +30,10 @@ it does not return the internal representation with its SRID prefix.
 `Strategy/MySQL/GeographyCoordinateOrderTest.php`, under
 `LongitudeOne/SpatialWriter/Tests/Unit/`, contain literal regression examples
 for all seven supported types, empty and nested collections, polygon holes,
-and the Paris point from issue #5. Run them with:
+and the Paris point from issue #5. Each family also has separate tests for
+nested MultiPoint, MultiLineString and MultiPolygon values with SRID 4326
+and an empty sibling collection. They assert complete literal bytes, including
+a single outer SRID prefix. Run them with:
 
 ```bash
 vendor/bin/phpunit --no-coverage --filter 'CoordinateOrderTest|MySQLStrategyTest'

@@ -129,6 +129,57 @@ class GeographyCoordinateOrderTest extends TestCase
         );
     }
 
+    /** Preserve MultiLineString inside nested collections, with one SRID prefix and an empty sibling. */
+    public function testNestedMultiLineStringWithEmptyCollection(): void
+    {
+        $lines = new MultiLineString([
+            [[0, 0], [2, 3]],
+            [[4, 1], [5, 2]],
+        ], 4326);
+        $collection = new GeographyCollection(4326, [
+            new GeographyCollection(4326, []),
+            new GeographyCollection(4326, [$lines]),
+        ]);
+
+        static::assertSame(
+            'e610000001070000000200000001070000000000000001070000000100000001050000000200000001020000000200000000000000000000000000000000000000000000000000004000000000000008400102000000020000000000000000001040000000000000f03f00000000000014400000000000000040',
+            bin2hex((new MySQLBinaryStrategy())->executeStrategy($collection))
+        );
+    }
+
+    /** Preserve MultiPoint inside nested collections, with one SRID prefix and an empty sibling. */
+    public function testNestedMultiPointWithEmptyCollection(): void
+    {
+        $points = new MultiPoint([[1, 2], [3, 4]], 4326);
+        $collection = new GeographyCollection(4326, [
+            new GeographyCollection(4326, []),
+            new GeographyCollection(4326, [$points]),
+        ]);
+
+        static::assertSame(
+            'e61000000107000000020000000107000000000000000107000000010000000104000000020000000101000000000000000000f03f0000000000000040010100000000000000000008400000000000001040',
+            bin2hex((new MySQLBinaryStrategy())->executeStrategy($collection))
+        );
+    }
+
+    /** Preserve MultiPolygon inside nested collections, with one SRID prefix and an empty sibling. */
+    public function testNestedMultiPolygonWithEmptyCollection(): void
+    {
+        $polygons = new MultiPolygon([
+            [[[0, 0], [2, 0], [0, 2], [0, 0]]],
+            [[[3, 3], [5, 3], [3, 5], [3, 3]]],
+        ], 4326);
+        $collection = new GeographyCollection(4326, [
+            new GeographyCollection(4326, []),
+            new GeographyCollection(4326, [$polygons]),
+        ]);
+
+        static::assertSame(
+            'e610000001070000000200000001070000000000000001070000000100000001060000000200000001030000000100000004000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000040000000000000000000000000000000000103000000010000000400000000000000000008400000000000000840000000000000144000000000000008400000000000000840000000000000144000000000000008400000000000000840',
+            bin2hex((new MySQLBinaryStrategy())->executeStrategy($collection))
+        );
+    }
+
     /** Match MySQL's longitude-first internal storage for Paris. */
     public function testParisPoint(): void
     {
