@@ -180,34 +180,45 @@ writes a four-byte SRID prefix followed by a binary representation of the
 geometry. This prefix belongs to MySQL's internal format: do not pass this
 output unchanged to a function that expects WKB alone.
 
-In the current implementation, `SpatialReferenceHelper` determines XY or YX
-order from the SRID lists in `Resources/`. With the default settings, SRID
-4326 causes Y to be written before X. Collection members use their containing
-collection's SRID. An SRID missing from the lists uses the helper's default
-axis order, initially XY.
+Coordinates are always written in X Y order: longitude then latitude for
+geographic objects, including SRID 4326. The SRID appears once as a prefix;
+collection members preserve the same coordinate order without extra prefixes.
+
+MySQL's SQL constructors interpret geographic input using the SRID axis order
+by default (latitude then longitude for 4326). To supply longitude-first WKT,
+use `ST_GeomFromText('POINT(1 2)', 4326, 'axis-order=long-lat')`.
+This input convention differs from the internal storage order.
+
+**Behavior change (#5):** earlier versions swapped coordinates for SRIDs
+classified as latitude-first. That swap and the unused SRID axis-order lookup
+resources are removed. Callers
+that previously reversed their coordinates to compensate should now pass
+X/longitude first and Y/latitude second. Changing the writer does not repair
+previously stored coordinates.
 
 ```php
 $writer->setStrategy(new MySQLBinaryStrategy());
 echo bin2hex($writer->convert($point));
-// e610000001010000000000000000000040000000000000f03f
+// e61000000101000000000000000000f03f0000000000000040
 ```
 
-The MySQL documentation states that only `GeometryCollection` can be empty
-in its internal format. Being able to create other empty objects in
-`spatial-types` therefore does not guarantee that MySQL will accept them.
+Only XY objects are accepted. Z, M and ZM inputs throw
+`UnsupportedDimensionException`, including empty collections with those
+dimensions. Empty points, lines, polygons and multi-geometries throw
+`UnsupportedSpatialTypeException`; only XY `GeometryCollection` (including
+`GeographyCollection`) may be empty. These checks also apply to nested members.
 
 Reference: [MySQL 8.4 spatial formats and internal storage](https://dev.mysql.com/doc/refman/8.4/en/gis-data-formats.html).
 
 ## Current Limitations and Test Examples
 
-The MySQL encoder reads only X and Y: additional Z or M coordinates are
-not yet preserved. It does not correctly handle `POINT EMPTY`. Use nonempty
-`Dimension2` objects with this encoder; WKB, EWKB, WKT and EWKT provide explicit support for
-empty values and additional dimensions.
+The MySQL encoder rejects additional dimensions and unsupported empty values.
+Use XY objects, with empty values limited to geometry collections. WKB, EWKB,
+WKT and EWKT support additional dimensions and other empty geometry types.
 
-The MySQL strategy declares little-endian byte order (`01`) and uses
-`pack()` calls in the machine's native byte order. Its current implementation
-therefore assumes a little-endian machine.
+The MySQL strategy declares little-endian byte order (`01`) and explicitly
+uses it for SRIDs, type identifiers, counts and coordinates. Its output is
+independent of the machine's native byte order.
 
 Curved geometries and TIN have no concrete classes in the current dependency
 and are not implemented by WKB. Unsupported types throw an `UnsupportedSpatialTypeException`.

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Strategy;
 
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\SpatialWriter\Strategy\MySQL\MySQLGeometryEncoder;
@@ -70,6 +71,7 @@ class MySQLBinaryStrategy implements StrategyInterface
      *
      * @return string a binary string representing the spatial interface in the internal MySQL storage format
      *
+     * @throws UnsupportedDimensionException        when coordinates include Z or M
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      * @throws UnsupportedSpatialTypeException      when the spatial type is not supported
      */

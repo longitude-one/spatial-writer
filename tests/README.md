@@ -12,40 +12,32 @@ composer test
 
 This runs the PHPUnit suite configured for the repository and validates the behavior of the spatial serialization and binary strategy implementations.
 
-## How to create test for the MySql Strategy
+## MySQL internal storage references
 
-Connect to your MySql database and execute a request like this one:
+Use `HEX()` directly on the geometry to include MySQL's four-byte SRID prefix.
+For longitude-first geographic coordinates, explicitly select the input order:
 
 ```sql
-SELECT UNHEX(HEX(ST_GeomFromText('GEOMETRYCOLLECTION()', 4326)))
+SELECT HEX(ST_GeomFromText('POINT(2.35 48.86)', 4326, 'axis-order=long-lat'));
+-- E61000000101000000CDCCCCCCCCCC0240AE47E17A146E4840
 ```
 
-```txt
-0xe6100000010700000000000000
+Without that option, 4326 input defaults to latitude then longitude. Internal
+storage still contains longitude then latitude. `ST_AsBinary()` exports WKB;
+it does not return the internal representation with its SRID prefix.
+
+`Strategy/MySQL/GeometryCoordinateOrderTest.php` and
+`Strategy/MySQL/GeographyCoordinateOrderTest.php`, under
+`LongitudeOne/SpatialWriter/Tests/Unit/`, contain literal regression examples
+for all seven supported types, empty and nested collections, polygon holes,
+and the Paris point from issue #5. Each family also has separate tests for
+nested MultiPoint, MultiLineString and MultiPolygon values with SRID 4326
+and an empty sibling collection. They assert complete literal bytes, including
+a single outer SRID prefix. Run them with:
+
+```bash
+vendor/bin/phpunit --no-coverage --filter 'CoordinateOrderTest|MySQLStrategyTest'
 ```
-
-Remove the `0x` before the result
-`e6100000010700000000000000` can be used as a constant to test your geometry.
-
-```php
-# LongitudeOne/SpatialWriter/Tests/Unit
-public function testCollection(CollectionInterface $collection, string $expected): void
-{
-    //Create an empty spatial collection with 4326 as SRID
-    $collection = new GeometryCollection(4326);
-    //Assert that expected string is the same than the result of our strategy
-    static::assertSame(
-        'e6100000010700000000000000', 
-        mb_strtlozer(
-            bin2hex(
-                $this->strategy->executeStrategy($collection)
-            )
-        )
-    );
-}
-```
-
-Of course, you should use data providers.
 
 ## How to create test for the Extended WKB Strategy
 
@@ -156,3 +148,19 @@ vendor/bin/phpunit --no-coverage --filter Ewkb
 
 For an independent PostGIS reference, use
 `SELECT encode(ST_AsEWKB(ST_GeomFromEWKT('SRID=4326;POINT Z (1 2 3)'), 'NDR'), 'hex');`.
+
+
+## MySQL rejected inputs
+
+`Strategy/MySQL/GeometryInvalidInputTest.php` and
+`Strategy/MySQL/GeographyInvalidInputTest.php` explicitly expect
+`UnsupportedDimensionException` for Z/M/ZM inputs and
+`UnsupportedSpatialTypeException` for unsupported empty geometries.
+Cases cover all six non-collection XY types, dimensional empty points and
+collections, nested empty points, and empty line/polygon members of
+multi-geometries. Existing coordinate-order tests verify that empty XY
+collections remain accepted.
+
+```bash
+vendor/bin/phpunit --no-coverage --filter InvalidInputTest
+```

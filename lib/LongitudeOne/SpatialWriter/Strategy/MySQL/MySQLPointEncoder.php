@@ -17,11 +17,9 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Strategy\MySQL;
 
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
-use LongitudeOne\SpatialWriter\Helper\AxisOrderEnum;
-use LongitudeOne\SpatialWriter\Helper\SpatialReferenceHelper;
 
 /**
- * Encodes point coordinates using the axis order required by the SRID.
+ * Encodes X then Y, including longitude then latitude for geographic points.
  */
 class MySQLPointEncoder
 {
@@ -29,15 +27,11 @@ class MySQLPointEncoder
      * Write point coordinates.
      *
      * @param PointInterface $point the point to write
-     * @param null|int       $srid  the SRID of the containing spatial collection
      *
      * @return string a binary string representing ordered coordinates in the internal MySQL storage format
      */
-    public function writePoint(PointInterface $point, ?int $srid): string
+    public function writePoint(PointInterface $point): string
     {
-        return match (SpatialReferenceHelper::getAxisOrder($srid ?? $point->getSrid())) {
-            AxisOrderEnum::XY => pack('dd', $point->getX(), $point->getY()),
-            AxisOrderEnum::YX => pack('dd', $point->getY(), $point->getX()),
-        };
+        return pack('ee', $point->getX(), $point->getY());
     }
 }

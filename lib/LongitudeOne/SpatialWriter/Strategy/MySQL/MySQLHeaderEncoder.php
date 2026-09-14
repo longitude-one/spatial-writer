@@ -18,6 +18,9 @@ namespace LongitudeOne\SpatialWriter\Strategy\MySQL;
 
 /**
  * Encodes the fixed header parts of MySQL's internal geometry format.
+ *
+ * Use pack('V') for 32-bit integers: MySQL's internal format requires little-endian
+ * bytes. pack('L') uses the machine's native byte order and is not portable.
  */
 class MySQLHeaderEncoder
 {
@@ -40,6 +43,6 @@ class MySQLHeaderEncoder
      */
     public function writeSrid(?int $srid): string
     {
-        return pack('L', $srid ?? 0);
+        return pack('V', $srid ?? 0);
     }
 }

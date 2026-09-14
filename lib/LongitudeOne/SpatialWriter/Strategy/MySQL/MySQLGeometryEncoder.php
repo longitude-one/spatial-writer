@@ -28,6 +28,9 @@ use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 
 /**
  * Encodes MySQL geometry coordinate payloads and nested geometry headers.
+ *
+ * Use pack('V') for 32-bit integers: MySQL's internal format requires little-endian
+ * bytes. pack('L') uses the machine's native byte order and is not portable.
  */
 class MySQLGeometryEncoder
 {
@@ -49,24 +52,21 @@ class MySQLGeometryEncoder
      * Write a geometry's coordinate payload.
      *
      * @param SpatialInterface $spatial the spatial interface to encode
-     * @param null|int         $srid    an optional SRID, when omitted, encoder uses the internal spatial interface SRID
      *
      * @return string a binary string representing the coordinates in the internal MySQL storage format
      *
      * @throws UnsupportedSpatialInterfaceException when the spatial interface is not supported
      */
-    public function writeCoordinates(SpatialInterface $spatial, ?int $srid = null): string
+    public function writeCoordinates(SpatialInterface $spatial): string
     {
-        $srid ??= $spatial->getSrid();
-
         return match (true) {
-            $spatial instanceof PointInterface => $this->pointEncoder->writePoint($spatial, $srid),
-            $spatial instanceof LineStringInterface => $this->writeLineString($spatial, $srid),
-            $spatial instanceof PolygonInterface => $this->writePolygon($spatial, $srid),
-            $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial, $srid),
-            $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial, $srid),
-            $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial, $srid),
-            $spatial instanceof CollectionInterface => $this->writeCollection($spatial, $srid),
+            $spatial instanceof PointInterface => $this->pointEncoder->writePoint($spatial),
+            $spatial instanceof LineStringInterface => $this->writeLineString($spatial),
+            $spatial instanceof PolygonInterface => $this->writePolygon($spatial),
+            $spatial instanceof MultiPointInterface => $this->writeMultiPoint($spatial),
+            $spatial instanceof MultiLineStringInterface => $this->writeMultiLineString($spatial),
+            $spatial instanceof MultiPolygonInterface => $this->writeMultiPolygon($spatial),
+            $spatial instanceof CollectionInterface => $this->writeCollection($spatial),
             default => throw new UnsupportedSpatialInterfaceException(sprintf('MySQL adapter does not support the spatial class %s', $spatial::class)),
         };
     }
@@ -75,16 +75,15 @@ class MySQLGeometryEncoder
      * Encode the collection into the internal MySQL format.
      *
      * @param CollectionInterface $collection the collection to encode
-     * @param null|int            $srid       an optional SRID
      *
      * @return string a binary string representing the collection in the internal MySQL storage format
      */
-    private function writeCollection(CollectionInterface $collection, ?int $srid): string
+    private function writeCollection(CollectionInterface $collection): string
     {
-        $binary = pack('L', count($collection->getElements()));
+        $binary = pack('V', count($collection->getElements()));
 
         foreach ($collection->getElements() as $element) {
-            $binary .= $this->writeNestedGeometry($element, $srid);
+            $binary .= $this->writeNestedGeometry($element);
         }
 
         return $binary;
@@ -94,16 +93,15 @@ class MySQLGeometryEncoder
      * Encode a line string.
      *
      * @param LineStringInterface $lineString the line string to write
-     * @param null|int            $srid       an optional SRID
      *
      * @return string a binary string representing the line string in the internal MySQL storage format
      */
-    private function writeLineString(LineStringInterface $lineString, ?int $srid): string
+    private function writeLineString(LineStringInterface $lineString): string
     {
-        $binary = pack('L', count($lineString->getPoints()));
+        $binary = pack('V', count($lineString->getPoints()));
 
         foreach ($lineString->getPoints() as $point) {
-            $binary .= $this->pointEncoder->writePoint($point, $srid);
+            $binary .= $this->pointEncoder->writePoint($point);
         }
 
         return $binary;
@@ -113,17 +111,16 @@ class MySQLGeometryEncoder
      * Write a multi-line string.
      *
      * @param MultiLineStringInterface $multiLineString the multi-line string to write
-     * @param null|int                 $srid            an optional SRID
      *
      * @return string a binary string representing the multi-line string in the internal MySQL storage format
      */
-    private function writeMultiLineString(MultiLineStringInterface $multiLineString, ?int $srid): string
+    private function writeMultiLineString(MultiLineStringInterface $multiLineString): string
     {
         $lineStrings = $multiLineString->getLineStrings();
-        $binary = pack('L', count($lineStrings));
+        $binary = pack('V', count($lineStrings));
 
         foreach ($lineStrings as $lineString) {
-            $binary .= $this->writeNestedGeometry($lineString, $srid);
+            $binary .= $this->writeNestedGeometry($lineString);
         }
 
         return $binary;
@@ -133,16 +130,15 @@ class MySQLGeometryEncoder
      * Write a multi-point.
      *
      * @param MultiPointInterface $multiPoint the multi-point to write
-     * @param null|int            $srid       an optional SRID
      *
      * @return string a binary string representing the multi-point in the internal MySQL storage format
      */
-    private function writeMultiPoint(MultiPointInterface $multiPoint, ?int $srid): string
+    private function writeMultiPoint(MultiPointInterface $multiPoint): string
     {
-        $binary = pack('L', count($multiPoint->getPoints()));
+        $binary = pack('V', count($multiPoint->getPoints()));
 
         foreach ($multiPoint->getPoints() as $point) {
-            $binary .= $this->writeNestedGeometry($point, $srid);
+            $binary .= $this->writeNestedGeometry($point);
         }
 
         return $binary;
@@ -152,16 +148,15 @@ class MySQLGeometryEncoder
      * Write a multi-polygon.
      *
      * @param MultiPolygonInterface $multiPolygon the multi-polygon to write
-     * @param null|int              $srid         an optional SRID
      *
      * @return string a binary string representing the multi-polygon in the internal MySQL storage format
      */
-    private function writeMultiPolygon(MultiPolygonInterface $multiPolygon, ?int $srid): string
+    private function writeMultiPolygon(MultiPolygonInterface $multiPolygon): string
     {
-        $binary = pack('L', count($multiPolygon->getPolygons()));
+        $binary = pack('V', count($multiPolygon->getPolygons()));
 
         foreach ($multiPolygon->getPolygons() as $polygon) {
-            $binary .= $this->writeNestedGeometry($polygon, $srid);
+            $binary .= $this->writeNestedGeometry($polygon);
         }
 
         return $binary;
@@ -171,31 +166,29 @@ class MySQLGeometryEncoder
      * Write the header and coordinates of a nested geometry.
      *
      * @param SpatialInterface $spatial the nested spatial value to write
-     * @param null|int         $srid    an optional SRID
      *
      * @return string a binary string representing the nested geometry in the internal MySQL storage format
      */
-    private function writeNestedGeometry(SpatialInterface $spatial, ?int $srid): string
+    private function writeNestedGeometry(SpatialInterface $spatial): string
     {
         return $this->headerEncoder->writeByteOrder()
             .$this->typeEncoder->writeType($spatial)
-            .$this->writeCoordinates($spatial, $srid);
+            .$this->writeCoordinates($spatial);
     }
 
     /**
      * Write a polygon.
      *
      * @param PolygonInterface $polygon the polygon to write
-     * @param null|int         $srid    an optional SRID
      *
      * @return string a binary string representing the polygon in the internal MySQL storage format
      */
-    private function writePolygon(PolygonInterface $polygon, ?int $srid): string
+    private function writePolygon(PolygonInterface $polygon): string
     {
-        $binary = pack('L', count($polygon->getRings()));
+        $binary = pack('V', count($polygon->getRings()));
 
         foreach ($polygon->getRings() as $ring) {
-            $binary .= $this->writeLineString($ring, $srid);
+            $binary .= $this->writeLineString($ring);
         }
 
         return $binary;
