@@ -47,8 +47,8 @@ jobs:
               uses: actions/cache@v6
               with:
                   path: vendor/
-                  key: ${{ format('{0}-composer-php81-{1}', runner.os, hashFiles('composer.lock')) }}
-                  restore-keys: ${{ format('{0}-composer-php83-', runner.os) }}
+                  key: ${{ format('{0}-composer-php84-{1}', runner.os, hashFiles('composer.lock')) }}
+                  restore-keys: ${{ format('{0}-composer-php84-', runner.os) }}
 
             - name: Install dependencies
               run: composer install -vvv

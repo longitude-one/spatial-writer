@@ -1,0 +1,27 @@
+/**
+ * Custom updater for commit-and-tag-version to update the README installation example.
+ */
+
+const SEMVER_PATTERN = '\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?';
+const PACKAGE_VERSION_PATTERN = new RegExp(
+  `(composer require longitude-one/spatial-writer:)(${SEMVER_PATTERN})(?=\\s|$)`,
+);
+
+module.exports.readVersion = function (contents) {
+  const match = contents.match(PACKAGE_VERSION_PATTERN);
+
+  if (!match) {
+    throw new Error('readme-version-updater: No Spatial Writer installation version found in README.md.');
+  }
+
+  return match[2];
+};
+
+module.exports.writeVersion = function (contents, version) {
+  module.exports.readVersion(contents);
+
+  return contents.replace(
+    new RegExp(PACKAGE_VERSION_PATTERN.source, 'g'),
+    (_, prefix) => `${prefix}${version}`,
+  );
+};

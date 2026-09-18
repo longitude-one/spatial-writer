@@ -29,6 +29,6 @@ usage examples, implementation limits, and links to reference documentation.
 ## Installation
 
 ```bash
-composer require longitude-one/spatial-writer
+composer require longitude-one/spatial-writer:0.0.0
 ```
 

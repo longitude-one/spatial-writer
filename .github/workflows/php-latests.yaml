@@ -1,9 +1,16 @@
 name: Tests with PHP 8.5+ versions
+
 on:
-    workflow_run:
-        workflows: ["Full tests with the oldest PHP version"]
-        types:
-            - completed
+    push:
+        branches:
+            - main
+        paths-ignore:
+            - '**.md'
+    pull_request:
+        branches:
+            - main
+        paths-ignore:
+            - '**.md'
 
 permissions:
     contents: read
@@ -11,12 +18,12 @@ permissions:
 
 jobs:
     build:
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: ubuntu-latest
         strategy:
             matrix:
                 php: [8.5]
             fail-fast: false
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v7
