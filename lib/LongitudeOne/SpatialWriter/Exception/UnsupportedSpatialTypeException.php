@@ -17,11 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Exception;
 
 /**
- * This exception is thrown when the spatial type is not supported.
- *
- * It should not happen, but it could happen if spatial-interface library is updated.
- *
- * @internal
+ * A recognized spatial type cannot be represented by the selected encoding strategy.
  */
 class UnsupportedSpatialTypeException extends \Exception implements ExceptionInterface
 {

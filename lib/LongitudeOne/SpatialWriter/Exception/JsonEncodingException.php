@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Exception;
 
 /**
- * The selected encoding strategy does not support the declared coordinate dimension.
+ * An error raised while encoding JSON, retaining the original exception.
  */
-class UnsupportedDimensionException extends \InvalidArgumentException implements ExceptionInterface
+class JsonEncodingException extends \RuntimeException implements ExceptionInterface
 {
 }

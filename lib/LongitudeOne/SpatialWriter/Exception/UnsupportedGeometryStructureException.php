@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Exception;
 
 /**
- * The selected encoding strategy does not support the declared coordinate dimension.
+ * A geometry structure cannot be represented by the selected strategy.
  */
-class UnsupportedDimensionException extends \InvalidArgumentException implements ExceptionInterface
+class UnsupportedGeometryStructureException extends \InvalidArgumentException implements ExceptionInterface
 {
 }
