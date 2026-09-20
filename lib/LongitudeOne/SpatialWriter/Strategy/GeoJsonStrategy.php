@@ -17,10 +17,12 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Strategy;
 
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedGeometryStructureException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 
@@ -34,10 +36,11 @@ class GeoJsonStrategy implements StrategyInterface
      *
      * @param SpatialInterface $spatial the geometry to encode
      *
-     * @throws UnsupportedDimensionException        when the geometry declares M
-     * @throws UnsupportedSpatialTypeException      when the type is not supported
-     * @throws UnsupportedSpatialInterfaceException when a Point interface is missing
-     * @throws JsonEncodingException                when JSON encoding fails
+     * @throws UnsupportedDimensionException         when the geometry declares M
+     * @throws UnsupportedSpatialTypeException       when the type is not supported
+     * @throws UnsupportedSpatialInterfaceException  when the geometry interface is missing
+     * @throws UnsupportedGeometryStructureException when a LineString has only one position
+     * @throws JsonEncodingException                 when JSON encoding fails
      */
     public function executeStrategy(SpatialInterface $spatial): string
     {
@@ -45,18 +48,53 @@ class GeoJsonStrategy implements StrategyInterface
             throw new UnsupportedDimensionException('GeoJSON does not support measured coordinates.');
         }
 
-        if (GeometryTypeEnum::POINT !== $spatial->getType()) {
-            throw new UnsupportedSpatialTypeException('This GeoJSON strategy does not support '.$spatial->getType()->name.'.');
+        $geometry = match ($spatial->getType()) {
+            GeometryTypeEnum::POINT => $this->encodePoint($spatial),
+            GeometryTypeEnum::LINESTRING => $this->encodeLineString($spatial),
+            default => throw new UnsupportedSpatialTypeException('This GeoJSON strategy does not support '.$spatial->getType()->name.'.'),
+        };
+
+        try {
+            return json_encode($geometry, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new JsonEncodingException('Unable to encode the geometry as GeoJSON.', previous: $exception);
+        }
+    }
+
+    /**
+     * Preserve a line's positions, allowing EMPTY but rejecting singleton lines.
+     *
+     * @param SpatialInterface $spatial the line string to encode
+     *
+     * @return array{type: string, coordinates: (float|int)[][]}
+     */
+    private function encodeLineString(SpatialInterface $spatial): array
+    {
+        if (!$spatial instanceof LineStringInterface) {
+            throw new UnsupportedSpatialInterfaceException($spatial::class);
         }
 
+        $coordinates = $spatial->toArray();
+        if (1 === count($coordinates)) {
+            throw new UnsupportedGeometryStructureException('A non-empty GeoJSON LineString requires at least two positions.');
+        }
+
+        return ['type' => 'LineString', 'coordinates' => $coordinates];
+    }
+
+    /**
+     * Preserve a point's coordinates.
+     *
+     * @param SpatialInterface $spatial the point to encode
+     *
+     * @return array{type: string, coordinates: (float|int)[]}
+     */
+    private function encodePoint(SpatialInterface $spatial): array
+    {
         if (!$spatial instanceof PointInterface) {
             throw new UnsupportedSpatialInterfaceException($spatial::class);
         }
 
-        try {
-            return json_encode(['type' => 'Point', 'coordinates' => $spatial->toArray()], JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new JsonEncodingException('Unable to encode the geometry as GeoJSON.', previous: $exception);
-        }
+        return ['type' => 'Point', 'coordinates' => $spatial->toArray()];
     }
 }
