@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point encoding according to RFC 7946                             |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point and LineString encoding according to RFC 7946              |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
@@ -235,8 +235,8 @@ and the [testing guide](../tests/README.md). To add a format, implement
 
 ## GeoJSON — `GeoJsonStrategy`
 
-This increment supports Geometry and Geography Points in XY and XYZ, including
-EMPTY. Other geometry types are not yet supported. Feature and FeatureCollection
+This increment supports Geometry and Geography Points and LineStrings in XY and
+XYZ, including EMPTY. Other geometry types are not yet supported. Feature and FeatureCollection
 composition belongs to the consuming application.
 
 ```php
@@ -265,7 +265,10 @@ including Triangle instead of silently converting it to Polygon.
 
 The shared public `UnsupportedGeometryStructureException` extends
 `\InvalidArgumentException` and implements `ExceptionInterface`; subsequent
-geometry contributions use it for the approved incompatible structures.
+geometry contributions use it for the approved incompatible structures. A
+non-empty LineString with only one position throws this exception. The concrete
+model accepts singleton lines, but prevents EMPTY member points and mismatched
+position dimensions at construction; fixtures do not bypass these invariants.
 `JsonEncodingException` extends `\RuntimeException`, implements
 `ExceptionInterface`, and wraps an encoding failure with the original
 `\JsonException` as `previous`. No partial JSON is returned. The installed
@@ -277,13 +280,28 @@ Numeric encoding uses PHP's `serialize_precision` setting; retain its default
 `-1` for floating-point round trips. Whitespace and object-property ordering are
 not a canonical serialization contract.
 
-The approved contracts for later geometry contributions preserve antimeridian
-crossings without cutting or detection for rejection, and preserve nested,
+LineStrings retain every position in its supplied order, including Z:
+
+```php
+$line = new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\LineString([[1, 2, 3], [4, 5, 6]]);
+echo $writer->convert($line);
+// {"type":"LineString","coordinates":[[1,2,3],[4,5,6]]}
+```
+
+EMPTY XY and XYZ LineStrings produce `{"type":"LineString","coordinates":[]}`.
+XYM and XYZM lines are rejected even when EMPTY. LineStrings crossing the
+antimeridian, such as `[[170,45],[-170,45]]`, are encoded unchanged, without
+cutting or detection for rejection. This deliberately does not apply the SHOULD
+in RFC 7946 section 3.1.9: consumers may interpret or display an uncut line as
+crossing the long way around the globe. Callers must prepare any cutting required
+by their consumers before encoding; this increment does not support MultiLineString.
+
+The approved contracts for later geometry contributions preserve nested,
 singleton and homogeneous GeometryCollections. These deliberately do not apply
-the SHOULD guidance of RFC 7946 sections 3.1.9 and 3.1.8. Consumers may interpret
-uncut geometries differently or have limited support for these collection forms;
+the SHOULD guidance of RFC 7946 section 3.1.8. Consumers may have limited support
+for these collection forms;
 preparation remains the caller's responsibility. Those types are not enabled by
-this Point increment.
+this increment.
 
 References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1),
 [coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),

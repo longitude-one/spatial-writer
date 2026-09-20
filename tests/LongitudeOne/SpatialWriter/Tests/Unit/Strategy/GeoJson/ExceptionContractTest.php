@@ -18,6 +18,7 @@ namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\GeoJson;
 
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
@@ -72,6 +73,20 @@ class ExceptionContractTest extends TestCase
         static::assertSame('Failure', $exception->getMessage());
         static::assertSame(12, $exception->getCode());
         static::assertSame($previous, $exception->getPrevious());
+    }
+
+    /** The installed model accepts non-finite ordinates in real line strings. */
+    public function testLineStringEncodingFailure(): void
+    {
+        $line = new LineString([[1, 2], [INF, 3]]);
+
+        try {
+            (new Writer(new GeoJsonStrategy()))->convert($line);
+            static::fail('JSON encoding must fail.');
+        } catch (JsonEncodingException $exception) {
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+            static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
+        }
     }
 
     /** The installed model accepts this float through its ordinary constructor. */
@@ -132,6 +147,17 @@ class ExceptionContractTest extends TestCase
         static::assertSame('Failure', $exception->getMessage());
         static::assertSame(12, $exception->getCode());
         static::assertSame($previous, $exception->getPrevious());
+    }
+
+    /** Reject a declared LineString without its corresponding interface. */
+    public function testUnsupportedLineStringInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::LINESTRING);
+        $spatial->method('hasM')->willReturn(false);
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($spatial);
     }
 
     /** Reject a declared Point without its interface through the public writer. */
