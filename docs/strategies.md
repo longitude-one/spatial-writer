@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point and LineString encoding according to RFC 7946              |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString and MultiPoint encoding according to RFC 7946  |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
@@ -235,7 +235,7 @@ and the [testing guide](../tests/README.md). To add a format, implement
 
 ## GeoJSON — `GeoJsonStrategy`
 
-This increment supports Geometry and Geography Points and LineStrings in XY and
+This increment supports Geometry and Geography Points, LineStrings and MultiPoints in XY and
 XYZ, including EMPTY. Other geometry types are not yet supported. Feature and FeatureCollection
 composition belongs to the consuming application.
 
@@ -296,6 +296,27 @@ in RFC 7946 section 3.1.9: consumers may interpret or display an uncut line as
 crossing the long way around the globe. Callers must prepare any cutting required
 by their consumers before encoding; this increment does not support MultiLineString.
 
+MultiPoints preserve the number and order of their positions, including duplicates
+and Z. A singleton remains a MultiPoint rather than becoming a Point:
+
+```php
+$multiPoint = new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\MultiPoint([[1, 2, 3], [4, 5, 6]]);
+echo $writer->convert($multiPoint);
+// {"type":"MultiPoint","coordinates":[[1,2,3],[4,5,6]]}
+```
+
+An XY or XYZ MultiPoint with no members produces
+`{"type":"MultiPoint","coordinates":[]}`. Measured MultiPoints are rejected
+even with no members. References are omitted and coordinates are unchanged,
+under the same caller responsibilities described above.
+
+The approved MultiPoint contract rejects any EMPTY Point member with
+`UnsupportedGeometryStructureException`, including an aggregate made entirely
+of EMPTY members. No member is omitted or replaced. The installed spatial-types
+`0.0.1-alpha.1` model currently prevents constructing such aggregates: its shared
+point-collection constructor throws `LongitudeOne\SpatialTypes\Exception\InvalidValueException`
+before the writer is called. An empty aggregate with no members remains supported.
+
 The approved contracts for later geometry contributions preserve nested,
 singleton and homogeneous GeometryCollections. These deliberately do not apply
 the SHOULD guidance of RFC 7946 section 3.1.8. Consumers may have limited support
@@ -304,5 +325,6 @@ preparation remains the caller's responsibility. Those types are not enabled by
 this increment.
 
 References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1),
+[MultiPoint positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.3),
 [coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),
 [non-extensible types](https://www.rfc-editor.org/rfc/rfc7946.html#section-7).

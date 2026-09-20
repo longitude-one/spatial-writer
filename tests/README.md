@@ -165,7 +165,7 @@ collections remain accepted.
 vendor/bin/phpunit --no-coverage --filter InvalidInputTest
 ```
 
-## GeoJSON Point and LineString strategy
+## GeoJSON Point, LineString and MultiPoint strategy
 
 Run `vendor/bin/phpunit --no-coverage --filter GeoJson` for explicit Geometry and
 Geography Point examples, XY/XYZ EMPTY, measured rejection, spatial references,
@@ -180,3 +180,7 @@ rejection and singleton rejection. Singleton lines use ordinary constructors;
 the model itself forbids EMPTY member points and inconsistent dimensions.
 `ExceptionContractTest` also verifies a concrete non-finite LineString encoding
 failure and the unchanged internal exception for a missing LineString interface.
+
+MultiPoint examples cover both families in XY/XYZ, empty aggregates, singletons,
+duplicate positions, member and ordinate order, omitted reference metadata, and
+XYM/XYZM rejection including empty aggregates.
