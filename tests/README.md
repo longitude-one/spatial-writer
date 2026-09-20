@@ -164,3 +164,12 @@ collections remain accepted.
 ```bash
 vendor/bin/phpunit --no-coverage --filter InvalidInputTest
 ```
+
+## GeoJSON Point strategy
+
+Run `vendor/bin/phpunit --no-coverage --filter GeoJson` for explicit Geometry and
+Geography Point examples, XY/XYZ EMPTY, measured rejection, spatial references,
+unsupported Triangle types and public exception contracts. JSON assertions compare
+complete structures, numeric values and coordinate order without prescribing
+whitespace or property order. Non-finite failure fixtures use real Geometry Point
+constructors accepted by the installed model, with no invariant bypass.

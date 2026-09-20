@@ -13,13 +13,14 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point encoding according to RFC 7946                             |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
 | `EwkbBinaryStrategy`  | EWKB Extended Well Known Binary | Yes, when nonzero | XY, XYZ, XYM, XYZM | Exchanges with a consumer of the extended PostGIS format         |
 | `MySQLBinaryStrategy` | Internal MySQL binary format    | Yes, as a prefix  | XY                 | Integrations expecting spatial values in MySQL's internal format |
 
-All strategies support `Point`, `LineString`, `Polygon`,
+The binary and WKT/EWKT strategies support `Point`, `LineString`, `Polygon`,
 `MultiPoint`, `MultiLineString`, `MultiPolygon`, and geometry collections.
 WKB, EWKB, WKT and EWKT also support `Triangle` and `PolyhedralSurface`. Classes in the Geometry
 and Geography families use the same output type names; for example,
@@ -231,3 +232,59 @@ For complete inputs and outputs, see the
 [explicit WKT examples](../tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples/)
 and the [testing guide](../tests/README.md). To add a format, implement
 `StrategyInterface` and pass the new strategy to `Writer`.
+
+## GeoJSON — `GeoJsonStrategy`
+
+This increment supports Geometry and Geography Points in XY and XYZ, including
+EMPTY. Other geometry types are not yet supported. Feature and FeatureCollection
+composition belongs to the consuming application.
+
+```php
+$writer->setStrategy(new \LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy());
+echo $writer->convert($point);
+// {"type":"Point","coordinates":[1,2]}
+```
+
+XYZ produces positions `[X,Y,Z]`; EMPTY XY and XYZ produce
+`{"type":"Point","coordinates":[]}`. No artificial dimension metadata is added.
+Measured XYM and XYZM inputs throw `UnsupportedDimensionException`, even EMPTY:
+M is neither discarded nor written as altitude or a fourth ordinate.
+
+The caller supplies WGS 84 longitude/latitude in degrees and, when present,
+ellipsoidal height in metres. The writer preserves the coordinates without
+reprojection, axis swapping or unit conversion. It does not validate that
+reference from SRID or authority metadata: zero, unknown and non-4326 identifiers
+are not reasons for rejection and are not serialized as a coordinate-system
+extension. An absent reference uses the model's default SRID of zero.
+
+`UnsupportedSpatialTypeException` is now explicitly public, with its existing
+`\Exception` inheritance and constructor unchanged. It implements
+`ExceptionInterface` and reports a type unsupported by the selected strategy,
+including Triangle instead of silently converting it to Polygon.
+`UnsupportedSpatialInterfaceException` remains internal and unchanged.
+
+The shared public `UnsupportedGeometryStructureException` extends
+`\InvalidArgumentException` and implements `ExceptionInterface`; subsequent
+geometry contributions use it for the approved incompatible structures.
+`JsonEncodingException` extends `\RuntimeException`, implements
+`ExceptionInterface`, and wraps an encoding failure with the original
+`\JsonException` as `previous`. No partial JSON is returned. The installed
+spatial-types model accepts non-finite floats through Geometry Point constructors;
+these encounter the ordinary JSON encoding failure path, without a separate
+writer validation policy.
+
+Numeric encoding uses PHP's `serialize_precision` setting; retain its default
+`-1` for floating-point round trips. Whitespace and object-property ordering are
+not a canonical serialization contract.
+
+The approved contracts for later geometry contributions preserve antimeridian
+crossings without cutting or detection for rejection, and preserve nested,
+singleton and homogeneous GeometryCollections. These deliberately do not apply
+the SHOULD guidance of RFC 7946 sections 3.1.9 and 3.1.8. Consumers may interpret
+uncut geometries differently or have limited support for these collection forms;
+preparation remains the caller's responsibility. Those types are not enabled by
+this Point increment.
+
+References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1),
+[coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),
+[non-extensible types](https://www.rfc-editor.org/rfc/rfc7946.html#section-7).
