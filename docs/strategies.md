@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy` | GeoJSON geometry text | No | XY, XYZ | Point encoding according to RFC 7946 |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point encoding according to RFC 7946                             |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
