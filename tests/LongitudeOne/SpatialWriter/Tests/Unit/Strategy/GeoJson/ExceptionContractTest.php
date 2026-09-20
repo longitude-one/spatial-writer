@@ -16,13 +16,17 @@ declare(strict_types=1);
 
 namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\GeoJson;
 
+use LongitudeOne\Core\Enum\GeometryTypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedGeometryStructureException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
 use LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy;
+use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -36,6 +40,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(UnsupportedGeometryStructureException::class)]
 #[CoversClass(UnsupportedSpatialTypeException::class)]
 #[CoversClass(UnsupportedDimensionException::class)]
+#[CoversClass(UnsupportedSpatialInterfaceException::class)]
+#[CoversClass(Writer::class)]
 class ExceptionContractTest extends TestCase
 {
     /** The installed model accepts this float through its ordinary constructor. */
@@ -126,6 +132,18 @@ class ExceptionContractTest extends TestCase
         static::assertSame('Failure', $exception->getMessage());
         static::assertSame(12, $exception->getCode());
         static::assertSame($previous, $exception->getPrevious());
+    }
+
+    /** Reject a declared Point without its interface through the public writer. */
+    public function testUnsupportedPointInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::POINT);
+        $spatial->method('hasM')->willReturn(false);
+        $writer = new Writer(new GeoJsonStrategy());
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        $writer->convert($spatial);
     }
 
     /** Preserve the approved public exception inheritance and constructor contract. */
