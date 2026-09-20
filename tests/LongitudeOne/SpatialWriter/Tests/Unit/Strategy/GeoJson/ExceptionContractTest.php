@@ -19,6 +19,7 @@ namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\GeoJson;
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
@@ -82,6 +83,20 @@ class ExceptionContractTest extends TestCase
 
         try {
             (new Writer(new GeoJsonStrategy()))->convert($line);
+            static::fail('JSON encoding must fail.');
+        } catch (JsonEncodingException $exception) {
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+            static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
+        }
+    }
+
+    /** Non-finite MultiPoint members use the shared JSON failure contract. */
+    public function testMultiPointEncodingFailure(): void
+    {
+        $multiPoint = new MultiPoint([[1, 2], [INF, 3]]);
+
+        try {
+            (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
             static::fail('JSON encoding must fail.');
         } catch (JsonEncodingException $exception) {
             static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
@@ -154,6 +169,17 @@ class ExceptionContractTest extends TestCase
     {
         $spatial = static::createStub(SpatialInterface::class);
         $spatial->method('getType')->willReturn(GeometryTypeEnum::LINESTRING);
+        $spatial->method('hasM')->willReturn(false);
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($spatial);
+    }
+
+    /** Reject a declared MultiPoint without its corresponding interface. */
+    public function testUnsupportedMultiPointInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::MULTIPOINT);
         $spatial->method('hasM')->willReturn(false);
 
         $this->expectException(UnsupportedSpatialInterfaceException::class);

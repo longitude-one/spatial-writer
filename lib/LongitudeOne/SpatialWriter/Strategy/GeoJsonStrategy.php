@@ -18,6 +18,7 @@ namespace LongitudeOne\SpatialWriter\Strategy;
 
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
@@ -39,7 +40,7 @@ class GeoJsonStrategy implements StrategyInterface
      * @throws UnsupportedDimensionException         when the geometry declares M
      * @throws UnsupportedSpatialTypeException       when the type is not supported
      * @throws UnsupportedSpatialInterfaceException  when the geometry interface is missing
-     * @throws UnsupportedGeometryStructureException when a LineString has only one position
+     * @throws UnsupportedGeometryStructureException when the geometry has an incompatible structure
      * @throws JsonEncodingException                 when JSON encoding fails
      */
     public function executeStrategy(SpatialInterface $spatial): string
@@ -51,6 +52,7 @@ class GeoJsonStrategy implements StrategyInterface
         $geometry = match ($spatial->getType()) {
             GeometryTypeEnum::POINT => $this->encodePoint($spatial),
             GeometryTypeEnum::LINESTRING => $this->encodeLineString($spatial),
+            GeometryTypeEnum::MULTIPOINT => $this->encodeMultiPoint($spatial),
             default => throw new UnsupportedSpatialTypeException('This GeoJSON strategy does not support '.$spatial->getType()->name.'.'),
         };
 
@@ -80,6 +82,27 @@ class GeoJsonStrategy implements StrategyInterface
         }
 
         return ['type' => 'LineString', 'coordinates' => $coordinates];
+    }
+
+    /**
+     * Preserve all positions, rejecting EMPTY members without omitting them.
+     *
+     * @param SpatialInterface $spatial the multi-point to encode
+     *
+     * @return array{type: string, coordinates: (float|int)[][]}
+     */
+    private function encodeMultiPoint(SpatialInterface $spatial): array
+    {
+        if (!$spatial instanceof MultiPointInterface) {
+            throw new UnsupportedSpatialInterfaceException($spatial::class);
+        }
+
+        $coordinates = $spatial->toArray();
+        if (in_array([], $coordinates, true)) {
+            throw new UnsupportedGeometryStructureException('A GeoJSON MultiPoint cannot contain an EMPTY Point.');
+        }
+
+        return ['type' => 'MultiPoint', 'coordinates' => $coordinates];
     }
 
     /**
