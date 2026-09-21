@@ -18,6 +18,7 @@ namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\GeoJson;
 
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\GeometryCollection;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
@@ -51,6 +52,20 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Writer::class)]
 class ExceptionContractTest extends TestCase
 {
+    /** A nested real member retains the original JSON exception. */
+    public function testCollectionEncodingFailure(): void
+    {
+        $collection = new GeometryCollection(0, [new Point(1, 2), new GeometryCollection(0, [new Point(INF, 3)])]);
+
+        try {
+            (new Writer(new GeoJsonStrategy()))->convert($collection);
+            static::fail('JSON encoding must fail.');
+        } catch (JsonEncodingException $exception) {
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+            static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
+        }
+    }
+
     /** The installed model accepts this float through its ordinary constructor. */
     public function testInfinityEncodingFailure(): void
     {
@@ -179,6 +194,17 @@ class ExceptionContractTest extends TestCase
             static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
             static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
         }
+    }
+
+    /** Preserve the internal exception for a missing collection interface. */
+    public function testUnsupportedCollectionInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::GEOMETRYCOLLECTION);
+        $spatial->method('hasM')->willReturn(false);
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($spatial);
     }
 
     /** Preserve the approved public exception inheritance and constructor contract. */
