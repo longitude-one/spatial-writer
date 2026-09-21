@@ -203,3 +203,11 @@ aggregates, incompatible exterior/interior winding and zero signed area. Measure
 XYM/XYZM aggregates are rejected including EMPTY. The shared exception tests
 cover a missing MultiPolygon interface and a real non-finite altitude with the
 original JSON exception preserved.
+
+GeometryCollection and GeographyCollection examples cover all six integrated
+member types, XY/XYZ, EMPTY collections and nested EMPTY members, singleton and
+homogeneous preservation, member order, Z, reference omission and antimeridian
+preservation. Real nested Triangle and incompatible members verify failure
+propagation; XYM/XYZM are rejected including EMPTY. The exception tests cover a
+missing collection interface and a nested non-finite Point using its ordinary
+constructor, preserving the original JSON exception.

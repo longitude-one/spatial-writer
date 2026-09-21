@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace LongitudeOne\SpatialWriter\Strategy\GeoJson;
 
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
+use LongitudeOne\SpatialTypes\Interfaces\CollectionInterface;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
@@ -40,11 +41,12 @@ final class GeometryEncoder
      *
      * @param SpatialInterface $spatial the geometry to encode
      *
-     * @return array{type: string, coordinates: array<mixed>}
+     * @return array{type: string, coordinates?: array<mixed>, geometries?: list<array<string, mixed>>}
      */
     public function encode(SpatialInterface $spatial): array
     {
         return match ($spatial->getType()) {
+            GeometryTypeEnum::GEOMETRYCOLLECTION => $this->encodeCollection($spatial),
             GeometryTypeEnum::POINT => $this->encodePoint($spatial),
             GeometryTypeEnum::LINESTRING => $this->encodeLineString($spatial),
             GeometryTypeEnum::MULTIPOINT => $this->encodeMultiPoint($spatial),
@@ -53,6 +55,27 @@ final class GeometryEncoder
             GeometryTypeEnum::MULTIPOLYGON => $this->encodeMultiPolygon($spatial),
             default => throw new UnsupportedSpatialTypeException('This GeoJSON strategy does not support '.$spatial->getType()->name.'.'),
         };
+    }
+
+    /**
+     * Recursively retain every member, including nested and EMPTY geometries.
+     *
+     * @param SpatialInterface $spatial the collection to encode
+     *
+     * @return array{type: string, geometries: list<array<string, mixed>>}
+     */
+    private function encodeCollection(SpatialInterface $spatial): array
+    {
+        if (!$spatial instanceof CollectionInterface) {
+            throw new UnsupportedSpatialInterfaceException($spatial::class);
+        }
+
+        $geometries = [];
+        foreach ($spatial->getElements() as $element) {
+            $geometries[] = $this->encode($element);
+        }
+
+        return ['type' => 'GeometryCollection', 'geometries' => $geometries];
     }
 
     /**

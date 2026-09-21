@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint, MultiLineString, Polygon and MultiPolygon encoding according to RFC 7946  |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint, MultiLineString, Polygon, MultiPolygon and GeometryCollection encoding according to RFC 7946  |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
@@ -235,9 +235,9 @@ and the [testing guide](../tests/README.md). To add a format, implement
 
 ## GeoJSON — `GeoJsonStrategy`
 
-This increment supports Geometry and Geography Points, LineStrings, MultiPoints,
-MultiLineStrings, Polygons and MultiPolygons in XY and XYZ, including EMPTY. Other geometry
-types are not yet supported. Feature and FeatureCollection composition belongs
+This strategy supports Geometry and Geography Points, LineStrings, MultiPoints,
+MultiLineStrings, Polygons, MultiPolygons and collections in XY and XYZ, including
+EMPTY. Types outside the seven RFC 7946 geometry types are rejected. Feature and FeatureCollection composition belongs
 to the consuming application.
 
 ```php
@@ -420,3 +420,37 @@ References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org
 [MultiPolygon members](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.7),
 [coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),
 [non-extensible types](https://www.rfc-editor.org/rfc/rfc7946.html#section-7).
+
+GeometryCollections recursively preserve each member's type, coordinates, order
+and nesting. GeographyCollection uses the same GeoJSON `GeometryCollection` type:
+
+```php
+$collection = new \LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\GeometryCollection(4326, [
+    new \LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point(1, 2, 4326),
+    new \LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString([[3, 4], [5, 6]], 4326),
+]);
+echo $writer->convert($collection);
+// {"type":"GeometryCollection","geometries":[{"type":"Point","coordinates":[1,2]},{"type":"LineString","coordinates":[[3,4],[5,6]]}]}
+```
+
+A collection with no members produces
+`{"type":"GeometryCollection","geometries":[]}`. EMPTY geometry members retain
+their own empty `coordinates` arrays; nested collections retain their
+`geometries` arrays. No `coordinates` member is added to a collection. XY and
+XYZ are supported, preserving Z; XYM and XYZM are rejected even when EMPTY.
+Reference metadata is omitted throughout, under the caller responsibilities above.
+
+The approved policy deliberately preserves nested, singleton and homogeneous
+collections instead of flattening them or converting them to another type.
+This does not apply the SHOULD guidance in
+[RFC 7946 section 3.1.8](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.8).
+Consumers that expect simplified forms may not handle or display these collections
+consistently; callers must prepare any simplification needed by their consumers.
+Antimeridian crossings also remain unchanged under section 3.1.9 as described above.
+
+All six other supported types use their normal encoders when nested in a
+collection. A non-RFC member throws `UnsupportedSpatialTypeException`; an
+incompatible member structure throws `UnsupportedGeometryStructureException`.
+Failures propagate through every collection level: no member is omitted and no
+partial result is returned. JSON failures retain the shared `JsonEncodingException`
+contract and original exception.
