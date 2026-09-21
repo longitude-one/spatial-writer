@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint, MultiLineString and Polygon encoding according to RFC 7946  |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint, MultiLineString, Polygon and MultiPolygon encoding according to RFC 7946  |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
@@ -236,7 +236,7 @@ and the [testing guide](../tests/README.md). To add a format, implement
 ## GeoJSON — `GeoJsonStrategy`
 
 This increment supports Geometry and Geography Points, LineStrings, MultiPoints,
-MultiLineStrings and Polygons in XY and XYZ, including EMPTY. Other geometry
+MultiLineStrings, Polygons and MultiPolygons in XY and XYZ, including EMPTY. Other geometry
 types are not yet supported. Feature and FeatureCollection composition belongs
 to the consuming application.
 
@@ -381,6 +381,31 @@ This deliberately does not apply the SHOULD in RFC 7946 section 3.1.9. Consumers
 may display an uncut polygon across the long way around the globe, so callers
 must prepare any required cutting before encoding.
 
+MultiPolygons preserve Polygon order, ring order, position order and Z. A singleton
+remains a MultiPolygon. Every member uses the same Polygon orientation checks
+above, with no second validation policy:
+
+```php
+$multiPolygon = new \LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPolygon([
+    [[[0, 0], [2, 0], [0, 2], [0, 0]]],
+    [[[3, 0], [5, 0], [3, 2], [3, 0]]],
+]);
+echo $writer->convert($multiPolygon);
+// {"type":"MultiPolygon","coordinates":[[[[0,0],[2,0],[0,2],[0,0]]],[[[3,0],[5,0],[3,2],[3,0]]]]}
+```
+
+An XY or XYZ MultiPolygon with no members produces
+`{"type":"MultiPolygon","coordinates":[]}`. Any EMPTY Polygon member throws
+`UnsupportedGeometryStructureException`, including when all members are EMPTY.
+An incompatible exterior or interior ring also rejects the whole conversion.
+No member is omitted, repaired, reoriented or replaced, and no partial output is
+returned. Measured XYM and XYZM aggregates are rejected even with no members.
+
+The same reference omission, caller responsibilities and JSON failure contract
+apply. Antimeridian-crossing members retain their supplied coordinates under the
+deliberate non-application of RFC 7946 section 3.1.9 described above, with the same
+possible long-way-around interpretation by consumers.
+
 The approved contracts for later geometry contributions preserve nested,
 singleton and homogeneous GeometryCollections. These deliberately do not apply
 the SHOULD guidance of RFC 7946 section 3.1.8. Consumers may have limited support
@@ -392,5 +417,6 @@ References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org
 [MultiPoint positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.3),
 [MultiLineString members](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.5),
 [Polygon rings](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.6),
+[MultiPolygon members](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.7),
 [coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),
 [non-extensible types](https://www.rfc-editor.org/rfc/rfc7946.html#section-7).
