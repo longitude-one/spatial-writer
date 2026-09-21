@@ -20,6 +20,7 @@ use LongitudeOne\SpatialTypes\Reference\SpatialReference;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geography\LineString;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedGeometryStructureException;
+use LongitudeOne\SpatialWriter\Strategy\GeoJson\GeometryEncoder;
 use LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy;
 use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -31,6 +32,7 @@ use PHPUnit\Framework\TestCase;
  * @internal
  */
 #[CoversClass(GeoJsonStrategy::class)]
+#[CoversClass(GeometryEncoder::class)]
 #[CoversClass(Writer::class)]
 class GeographyLineStringTest extends TestCase
 {

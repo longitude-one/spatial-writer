@@ -165,7 +165,7 @@ collections remain accepted.
 vendor/bin/phpunit --no-coverage --filter InvalidInputTest
 ```
 
-## GeoJSON Point, LineString and MultiPoint strategy
+## GeoJSON strategy
 
 Run `vendor/bin/phpunit --no-coverage --filter GeoJson` for explicit Geometry and
 Geography Point examples, XY/XYZ EMPTY, measured rejection, spatial references,
@@ -187,3 +187,11 @@ XYM/XYZM rejection including empty aggregates.
 Concrete XY/XYZ examples also verify rejection of mixed non-empty/EMPTY members
 and aggregates containing only EMPTY Points in both families, using spatial-types
 `0.0.1-alpha.2`.
+
+Polygon examples cover both families in XY/XYZ, EMPTY, holes, Z and ring order,
+reference omission, antimeridian preservation, measured rejection and invalid
+winding. Zero-area collinear and crossed rings are rejected under the approved
+orientation policy; a crossed ring with positive area demonstrates that no general
+topology validator was added. Fixtures use the ordinary model constructors.
+`ExceptionContractTest` verifies Polygon interface errors and a non-finite altitude
+encoding failure with the original JSON exception preserved.
