@@ -195,3 +195,11 @@ orientation policy; a crossed ring with positive area demonstrates that no gener
 topology validator was added. Fixtures use the ordinary model constructors.
 `ExceptionContractTest` verifies Polygon interface errors and a non-finite altitude
 encoding failure with the original JSON exception preserved.
+
+MultiPolygon examples cover both families in XY/XYZ, empty aggregates, singleton
+wrapping, Polygon/ring/position order, Z, reference omission and antimeridian
+preservation. Real Polygon members verify rejection of mixed and all-EMPTY
+aggregates, incompatible exterior/interior winding and zero signed area. Measured
+XYM/XYZM aggregates are rejected including EMPTY. The shared exception tests
+cover a missing MultiPolygon interface and a real non-finite altitude with the
+original JSON exception preserved.

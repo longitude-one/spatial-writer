@@ -20,6 +20,7 @@ use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiPolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PolygonInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
@@ -49,6 +50,7 @@ final class GeometryEncoder
             GeometryTypeEnum::MULTIPOINT => $this->encodeMultiPoint($spatial),
             GeometryTypeEnum::MULTILINESTRING => $this->encodeMultiLineString($spatial),
             GeometryTypeEnum::POLYGON => $this->encodePolygon($spatial),
+            GeometryTypeEnum::MULTIPOLYGON => $this->encodeMultiPolygon($spatial),
             default => throw new UnsupportedSpatialTypeException('This GeoJSON strategy does not support '.$spatial->getType()->name.'.'),
         };
     }
@@ -116,6 +118,32 @@ final class GeometryEncoder
         }
 
         return ['type' => 'MultiPoint', 'coordinates' => $coordinates];
+    }
+
+    /**
+     * Preserve polygon membership using the shared Polygon orientation policy.
+     *
+     * @param SpatialInterface $spatial the multi-polygon to encode
+     *
+     * @return array{type: string, coordinates: (float|int)[][][][]}
+     */
+    private function encodeMultiPolygon(SpatialInterface $spatial): array
+    {
+        if (!$spatial instanceof MultiPolygonInterface) {
+            throw new UnsupportedSpatialInterfaceException($spatial::class);
+        }
+
+        $coordinates = [];
+        foreach ($spatial->getPolygons() as $polygon) {
+            $rings = $this->encodePolygon($polygon)['coordinates'];
+            if ([] === $rings) {
+                throw new UnsupportedGeometryStructureException('A GeoJSON MultiPolygon cannot contain an EMPTY Polygon.');
+            }
+
+            $coordinates[] = $rings;
+        }
+
+        return ['type' => 'MultiPolygon', 'coordinates' => $coordinates];
     }
 
     /**

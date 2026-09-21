@@ -22,6 +22,7 @@ use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
+use LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\MultiPolygon;
 use LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Polygon;
 use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
@@ -115,6 +116,20 @@ class ExceptionContractTest extends TestCase
 
         try {
             (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
+            static::fail('JSON encoding must fail.');
+        } catch (JsonEncodingException $exception) {
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+            static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
+        }
+    }
+
+    /** A real polygon member with non-finite Z retains the shared JSON failure. */
+    public function testMultiPolygonEncodingFailure(): void
+    {
+        $multiPolygon = new MultiPolygon([[[[0, 0, 1], [2, 0, INF], [0, 2, 3], [0, 0, 1]]]]);
+
+        try {
+            (new Writer(new GeoJsonStrategy()))->convert($multiPolygon);
             static::fail('JSON encoding must fail.');
         } catch (JsonEncodingException $exception) {
             static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
@@ -223,6 +238,17 @@ class ExceptionContractTest extends TestCase
     {
         $spatial = static::createStub(SpatialInterface::class);
         $spatial->method('getType')->willReturn(GeometryTypeEnum::MULTIPOINT);
+        $spatial->method('hasM')->willReturn(false);
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($spatial);
+    }
+
+    /** Preserve the internal exception for a missing MultiPolygon interface. */
+    public function testUnsupportedMultiPolygonInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::MULTIPOLYGON);
         $spatial->method('hasM')->willReturn(false);
 
         $this->expectException(UnsupportedSpatialInterfaceException::class);
