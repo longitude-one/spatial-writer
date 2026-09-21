@@ -312,10 +312,10 @@ under the same caller responsibilities described above.
 
 The approved MultiPoint contract rejects any EMPTY Point member with
 `UnsupportedGeometryStructureException`, including an aggregate made entirely
-of EMPTY members. No member is omitted or replaced. The installed spatial-types
-`0.0.1-alpha.1` model currently prevents constructing such aggregates: its shared
-point-collection constructor throws `LongitudeOne\SpatialTypes\Exception\InvalidValueException`
-before the writer is called. An empty aggregate with no members remains supported.
+of EMPTY members. No member is omitted or replaced. The required spatial-types
+`0.0.1-alpha.2` model supports constructing these aggregates, so the writer rejects
+them through its public structural exception. An empty aggregate with no members
+remains supported.
 
 The approved contracts for later geometry contributions preserve nested,
 singleton and homogeneous GeometryCollections. These deliberately do not apply
