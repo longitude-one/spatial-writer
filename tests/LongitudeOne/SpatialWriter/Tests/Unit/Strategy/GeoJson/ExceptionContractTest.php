@@ -19,6 +19,7 @@ namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\GeoJson;
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
@@ -83,6 +84,20 @@ class ExceptionContractTest extends TestCase
 
         try {
             (new Writer(new GeoJsonStrategy()))->convert($line);
+            static::fail('JSON encoding must fail.');
+        } catch (JsonEncodingException $exception) {
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+            static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
+        }
+    }
+
+    /** Non-finite line members use the shared JSON failure contract. */
+    public function testMultiLineStringEncodingFailure(): void
+    {
+        $multiLine = new MultiLineString([[[1, 2], [3, 4]], [[5, 6], [INF, 8]]]);
+
+        try {
+            (new Writer(new GeoJsonStrategy()))->convert($multiLine);
             static::fail('JSON encoding must fail.');
         } catch (JsonEncodingException $exception) {
             static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
@@ -169,6 +184,17 @@ class ExceptionContractTest extends TestCase
     {
         $spatial = static::createStub(SpatialInterface::class);
         $spatial->method('getType')->willReturn(GeometryTypeEnum::LINESTRING);
+        $spatial->method('hasM')->willReturn(false);
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($spatial);
+    }
+
+    /** Reject a declared MultiLineString without its corresponding interface. */
+    public function testUnsupportedMultiLineStringInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::MULTILINESTRING);
         $spatial->method('hasM')->willReturn(false);
 
         $this->expectException(UnsupportedSpatialInterfaceException::class);
