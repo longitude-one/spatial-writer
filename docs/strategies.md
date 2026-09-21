@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint and MultiLineString encoding according to RFC 7946  |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint, MultiLineString and Polygon encoding according to RFC 7946  |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
@@ -235,9 +235,10 @@ and the [testing guide](../tests/README.md). To add a format, implement
 
 ## GeoJSON — `GeoJsonStrategy`
 
-This increment supports Geometry and Geography Points, LineStrings, MultiPoints and MultiLineStrings in XY and
-XYZ, including EMPTY. Other geometry types are not yet supported. Feature and FeatureCollection
-composition belongs to the consuming application.
+This increment supports Geometry and Geography Points, LineStrings, MultiPoints,
+MultiLineStrings and Polygons in XY and XYZ, including EMPTY. Other geometry
+types are not yet supported. Feature and FeatureCollection composition belongs
+to the consuming application.
 
 ```php
 $writer->setStrategy(new \LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy());
@@ -342,6 +343,44 @@ Antimeridian-crossing members are preserved unchanged under the deliberate
 non-application of RFC 7946 section 3.1.9 described above. The same caller
 responsibilities, reference omission and JSON failure contract apply.
 
+Polygons preserve exterior and interior ring order, all positions and Z:
+
+```php
+$polygon = new \LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Polygon([
+    [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+    [[1, 1], [1, 2], [2, 2], [2, 1], [1, 1]],
+]);
+echo $writer->convert($polygon);
+// {"type":"Polygon","coordinates":[[[0,0],[4,0],[4,4],[0,4],[0,0]],[[1,1],[1,2],[2,2],[2,1],[1,1]]]}
+```
+
+EMPTY XY and XYZ Polygons produce `{"type":"Polygon","coordinates":[]}`.
+XYM and XYZM are rejected even when EMPTY. The same reference omission and JSON
+failure contracts apply to Polygons.
+
+Every exterior ring must have strictly positive signed XY area (counterclockwise)
+and every interior ring strictly negative signed XY area (clockwise). Incompatible
+orientation, including zero signed area, throws
+`UnsupportedGeometryStructureException`. The writer never reverses, closes or
+repairs a ring and never returns partial output. Z is preserved but does not
+participate in the orientation calculation. The signed-area algorithm and
+zero-area rejection are the [approved LongitudeOne encoding policy](https://github.com/longitude-one/spatial-writer/issues/13#issuecomment-5765188095);
+RFC 7946 section 3.1.6 requires winding but does not prescribe that algorithm or
+explicitly prescribe zero-area rejection.
+
+The installed model already enforces at least four positions, closure and the
+absence of consecutive duplicate positions. It permits collinear and crossed
+rings. The writer rejects a crossed ring if its signed area is zero, but does not
+separately check simplicity, self-intersections, hole containment or other topology.
+A nonzero signed area is not proof of topological validity; the caller remains
+responsible for that validation.
+
+Antimeridian-crossing Polygon coordinates are preserved without unwrapping,
+detection for rejection or cutting; orientation uses the supplied XY coordinates.
+This deliberately does not apply the SHOULD in RFC 7946 section 3.1.9. Consumers
+may display an uncut polygon across the long way around the globe, so callers
+must prepare any required cutting before encoding.
+
 The approved contracts for later geometry contributions preserve nested,
 singleton and homogeneous GeometryCollections. These deliberately do not apply
 the SHOULD guidance of RFC 7946 section 3.1.8. Consumers may have limited support
@@ -352,5 +391,6 @@ this increment.
 References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1),
 [MultiPoint positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.3),
 [MultiLineString members](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.5),
+[Polygon rings](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.6),
 [coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),
 [non-extensible types](https://www.rfc-editor.org/rfc/rfc7946.html#section-7).

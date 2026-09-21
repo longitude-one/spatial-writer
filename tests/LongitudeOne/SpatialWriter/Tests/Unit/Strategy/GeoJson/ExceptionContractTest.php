@@ -22,12 +22,14 @@ use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\LineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
+use LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Polygon;
 use LongitudeOne\SpatialWriter\Exception\ExceptionInterface;
 use LongitudeOne\SpatialWriter\Exception\JsonEncodingException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedGeometryStructureException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialInterfaceException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Strategy\GeoJson\GeometryEncoder;
 use LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy;
 use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -39,6 +41,7 @@ use PHPUnit\Framework\TestCase;
  * @internal
  */
 #[CoversClass(GeoJsonStrategy::class)]
+#[CoversClass(GeometryEncoder::class)]
 #[CoversClass(JsonEncodingException::class)]
 #[CoversClass(UnsupportedGeometryStructureException::class)]
 #[CoversClass(UnsupportedSpatialTypeException::class)]
@@ -149,6 +152,20 @@ class ExceptionContractTest extends TestCase
         }
     }
 
+    /** A real Polygon with non-finite Z uses the ordinary JSON failure path. */
+    public function testPolygonEncodingFailure(): void
+    {
+        $polygon = new Polygon([[[0, 0, 1], [2, 0, INF], [0, 2, 3], [0, 0, 1]]]);
+
+        try {
+            (new Writer(new GeoJsonStrategy()))->convert($polygon);
+            static::fail('JSON encoding must fail.');
+        } catch (JsonEncodingException $exception) {
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+            static::assertSame(JSON_ERROR_INF_OR_NAN, $exception->getPrevious()->getCode());
+        }
+    }
+
     /** Preserve the approved public exception inheritance and constructor contract. */
     public function testUnsupportedDimensionExceptionContract(): void
     {
@@ -222,6 +239,17 @@ class ExceptionContractTest extends TestCase
 
         $this->expectException(UnsupportedSpatialInterfaceException::class);
         $writer->convert($spatial);
+    }
+
+    /** Reject a declared Polygon without its corresponding interface. */
+    public function testUnsupportedPolygonInterfaceThroughWriter(): void
+    {
+        $spatial = static::createStub(SpatialInterface::class);
+        $spatial->method('getType')->willReturn(GeometryTypeEnum::POLYGON);
+        $spatial->method('hasM')->willReturn(false);
+
+        $this->expectException(UnsupportedSpatialInterfaceException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($spatial);
     }
 
     /** Preserve the approved public exception inheritance and constructor contract. */

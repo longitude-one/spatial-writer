@@ -21,6 +21,7 @@ use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Triangle;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedSpatialTypeException;
+use LongitudeOne\SpatialWriter\Strategy\GeoJson\GeometryEncoder;
 use LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy;
 use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -32,6 +33,7 @@ use PHPUnit\Framework\TestCase;
  * @internal
  */
 #[CoversClass(GeoJsonStrategy::class)]
+#[CoversClass(GeometryEncoder::class)]
 #[CoversClass(Writer::class)]
 class GeometryPointTest extends TestCase
 {
