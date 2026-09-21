@@ -13,7 +13,7 @@ This table describes the capabilities of the repository's current implementation
 
 | Class.                | Output                          | SRID in output    | Dimensions written | Usage                                                            |
 | --------------------- | ------------------------------- | ----------------- | ------------------ | ---------------------------------------------------------------- |
-| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString and MultiPoint encoding according to RFC 7946  |
+| `GeoJsonStrategy`     | GeoJSON geometry text           | No                | XY, XYZ            | Point, LineString, MultiPoint and MultiLineString encoding according to RFC 7946  |
 | `WktTextStrategy`     | WKT Well Known Text             | No                | XY, XYZ, XYM, XYZM | Display, text exchanges, functions accepting WKT                 |
 | `EwktTextStrategy`    | EWKT Extended Well Known Text.  | Yes, when nonzero | XY, XYZ, XYM, XYZM | Text exchanges that include the spatial reference                |
 | `WkbBinaryStrategy`   | ISO WKB Well Known Binary.      | No                | XY, XYZ, XYM, XYZM | Exchanges with a standard WKB consumer                           |
@@ -235,7 +235,7 @@ and the [testing guide](../tests/README.md). To add a format, implement
 
 ## GeoJSON — `GeoJsonStrategy`
 
-This increment supports Geometry and Geography Points, LineStrings and MultiPoints in XY and
+This increment supports Geometry and Geography Points, LineStrings, MultiPoints and MultiLineStrings in XY and
 XYZ, including EMPTY. Other geometry types are not yet supported. Feature and FeatureCollection
 composition belongs to the consuming application.
 
@@ -294,7 +294,7 @@ antimeridian, such as `[[170,45],[-170,45]]`, are encoded unchanged, without
 cutting or detection for rejection. This deliberately does not apply the SHOULD
 in RFC 7946 section 3.1.9: consumers may interpret or display an uncut line as
 crossing the long way around the globe. Callers must prepare any cutting required
-by their consumers before encoding; this increment does not support MultiLineString.
+by their consumers before encoding.
 
 MultiPoints preserve the number and order of their positions, including duplicates
 and Z. A singleton remains a MultiPoint rather than becoming a Point:
@@ -317,6 +317,31 @@ of EMPTY members. No member is omitted or replaced. The required spatial-types
 them through its public structural exception. An empty aggregate with no members
 remains supported.
 
+MultiLineStrings preserve each supplied line, its position order and Z, and the
+order of the members. A single member remains wrapped as a MultiLineString:
+
+```php
+$multiLine = new \LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiLineString([
+    [[1, 2], [3, 4]],
+    [[5, 6], [7, 8]],
+]);
+echo $writer->convert($multiLine);
+// {"type":"MultiLineString","coordinates":[[[1,2],[3,4]],[[5,6],[7,8]]]}
+```
+
+An XY or XYZ MultiLineString with no members produces
+`{"type":"MultiLineString","coordinates":[]}`. Any EMPTY LineString member,
+including an aggregate containing only EMPTY members, throws
+`UnsupportedGeometryStructureException`. A member with only one position also
+throws that exception, as a GeoJSON line requires at least two positions.
+The model permits these line members; the writer rejects them without omitting,
+flattening or repairing them, and never returns partial output or nested empty
+coordinate arrays. XYM and XYZM are rejected even with no members.
+
+Antimeridian-crossing members are preserved unchanged under the deliberate
+non-application of RFC 7946 section 3.1.9 described above. The same caller
+responsibilities, reference omission and JSON failure contract apply.
+
 The approved contracts for later geometry contributions preserve nested,
 singleton and homogeneous GeometryCollections. These deliberately do not apply
 the SHOULD guidance of RFC 7946 section 3.1.8. Consumers may have limited support
@@ -326,5 +351,6 @@ this increment.
 
 References: [RFC 7946 geometry objects and positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1),
 [MultiPoint positions](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.3),
+[MultiLineString members](https://www.rfc-editor.org/rfc/rfc7946.html#section-3.1.5),
 [coordinate reference system](https://www.rfc-editor.org/rfc/rfc7946.html#section-4),
 [non-extensible types](https://www.rfc-editor.org/rfc/rfc7946.html#section-7).

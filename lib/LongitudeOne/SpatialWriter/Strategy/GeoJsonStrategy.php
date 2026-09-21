@@ -18,6 +18,7 @@ namespace LongitudeOne\SpatialWriter\Strategy;
 
 use LongitudeOne\Core\Enum\GeometryTypeEnum;
 use LongitudeOne\SpatialTypes\Interfaces\LineStringInterface;
+use LongitudeOne\SpatialTypes\Interfaces\MultiLineStringInterface;
 use LongitudeOne\SpatialTypes\Interfaces\MultiPointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\PointInterface;
 use LongitudeOne\SpatialTypes\Interfaces\SpatialInterface;
@@ -53,6 +54,7 @@ class GeoJsonStrategy implements StrategyInterface
             GeometryTypeEnum::POINT => $this->encodePoint($spatial),
             GeometryTypeEnum::LINESTRING => $this->encodeLineString($spatial),
             GeometryTypeEnum::MULTIPOINT => $this->encodeMultiPoint($spatial),
+            GeometryTypeEnum::MULTILINESTRING => $this->encodeMultiLineString($spatial),
             default => throw new UnsupportedSpatialTypeException('This GeoJSON strategy does not support '.$spatial->getType()->name.'.'),
         };
 
@@ -82,6 +84,29 @@ class GeoJsonStrategy implements StrategyInterface
         }
 
         return ['type' => 'LineString', 'coordinates' => $coordinates];
+    }
+
+    /**
+     * Preserve line membership and order, rejecting EMPTY and singleton members.
+     *
+     * @param SpatialInterface $spatial the multi-line string to encode
+     *
+     * @return array{type: string, coordinates: (float|int)[][][]}
+     */
+    private function encodeMultiLineString(SpatialInterface $spatial): array
+    {
+        if (!$spatial instanceof MultiLineStringInterface) {
+            throw new UnsupportedSpatialInterfaceException($spatial::class);
+        }
+
+        $coordinates = $spatial->toArray();
+        foreach ($coordinates as $line) {
+            if (count($line) < 2) {
+                throw new UnsupportedGeometryStructureException('Every GeoJSON MultiLineString member requires at least two positions.');
+            }
+        }
+
+        return ['type' => 'MultiLineString', 'coordinates' => $coordinates];
     }
 
     /**
