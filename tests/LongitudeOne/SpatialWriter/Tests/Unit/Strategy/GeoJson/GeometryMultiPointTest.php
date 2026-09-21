@@ -18,7 +18,9 @@ namespace LongitudeOne\SpatialWriter\Tests\Unit\Strategy\GeoJson;
 
 use LongitudeOne\SpatialTypes\Reference\SpatialReference;
 use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\MultiPoint;
+use LongitudeOne\SpatialTypes\Types\Dimension2\Geometry\Point;
 use LongitudeOne\SpatialWriter\Exception\UnsupportedDimensionException;
+use LongitudeOne\SpatialWriter\Exception\UnsupportedGeometryStructureException;
 use LongitudeOne\SpatialWriter\Strategy\GeoJsonStrategy;
 use LongitudeOne\SpatialWriter\Writer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -106,6 +108,38 @@ class GeometryMultiPointTest extends TestCase
     {
         $multiPoint = new \LongitudeOne\SpatialTypes\Types\Dimension4zm\Geometry\MultiPoint([]);
         $this->expectException(UnsupportedDimensionException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
+    }
+
+    /** Reject an EMPTY member after a non-empty position without returning partial output. */
+    public function testRejectMixedEmptyMembersXy(): void
+    {
+        $multiPoint = new MultiPoint([new Point(1, 2), new Point()]);
+        $this->expectException(UnsupportedGeometryStructureException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
+    }
+
+    /** Reject an EMPTY member after a non-empty position without returning partial output. */
+    public function testRejectMixedEmptyMembersXyz(): void
+    {
+        $multiPoint = new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\MultiPoint([new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Point(1, 2, 3), new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Point()]);
+        $this->expectException(UnsupportedGeometryStructureException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
+    }
+
+    /** Distinguish an aggregate containing only EMPTY members from one with no members. */
+    public function testRejectOnlyEmptyMembersXy(): void
+    {
+        $multiPoint = new MultiPoint([new Point(), new Point()]);
+        $this->expectException(UnsupportedGeometryStructureException::class);
+        (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
+    }
+
+    /** Distinguish an aggregate containing only EMPTY members from one with no members. */
+    public function testRejectOnlyEmptyMembersXyz(): void
+    {
+        $multiPoint = new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\MultiPoint([new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Point(), new \LongitudeOne\SpatialTypes\Types\Dimension3z\Geometry\Point()]);
+        $this->expectException(UnsupportedGeometryStructureException::class);
         (new Writer(new GeoJsonStrategy()))->convert($multiPoint);
     }
 
