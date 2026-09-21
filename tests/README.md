@@ -184,3 +184,6 @@ failure and the unchanged internal exception for a missing LineString interface.
 MultiPoint examples cover both families in XY/XYZ, empty aggregates, singletons,
 duplicate positions, member and ordinate order, omitted reference metadata, and
 XYM/XYZM rejection including empty aggregates.
+Concrete XY/XYZ examples also verify rejection of mixed non-empty/EMPTY members
+and aggregates containing only EMPTY Points in both families, using spatial-types
+`0.0.1-alpha.2`.
