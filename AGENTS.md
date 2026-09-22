@@ -6,11 +6,11 @@ This file defines the repository-specific development rules and the operating bo
 
 This PHP library encodes spatial objects to WKB, EWKB, MySQL binary formats, and WKT text.
 
-Source lives in `lib/LongitudeOne/SpatialEncoder/`, using Composer PSR-0 autoloading. `Encoder` delegates conversion to `Strategy/StrategyInterface`; MySQL encoding helpers live in `Strategy/MySQL/`.
+Source lives in `lib/`, using Composer PSR-4 autoloading with the `LongitudeOne\SpatialEncoder\` namespace prefix. `Encoder` delegates conversion to `Strategy/StrategyInterface`; MySQL encoding helpers live in `Strategy/MySQL/`.
 
 Strategies preserve X/Y coordinate order. SRIDs do not trigger axis swapping.
 
-Tests mirror the source under `tests/LongitudeOne/SpatialEncoder/Tests/Unit/`.
+Tests mirror the source under `tests/Unit/`. Composer PSR-4 development autoloading maps the `LongitudeOne\SpatialEncoder\Tests\` namespace prefix to `tests/`.
 
 Quality tools have separate Composer installations and configuration under `quality/`. CI workflows live in `.github/workflows/`.
 
