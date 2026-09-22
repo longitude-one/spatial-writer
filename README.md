@@ -28,5 +28,5 @@ See the [strategy guide](docs/strategies.md) for a comparison of the five format
 ## Installation
 
 ```bash
-composer require longitude-one/spatial-encoder:0.0.0
+composer require longitude-one/spatial-encoder:1.0.0-RC.0
 ```
