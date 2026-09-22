@@ -1,16 +1,16 @@
 # Repository Guidelines
 
-This file defines the repository-specific development rules and the operating boundaries for AI agents working on `longitude-one/spatial-writer`.
+This file defines the repository-specific development rules and the operating boundaries for AI agents working on `longitude-one/spatial-encoder`.
 
 ## Project Structure & Module Organization
 
-This PHP library converts spatial objects to WKB, EWKB, MySQL binary formats, and WKT text.
+This PHP library encodes spatial objects to WKB, EWKB, MySQL binary formats, and WKT text.
 
-Source lives in `lib/LongitudeOne/SpatialWriter/`, using Composer PSR-0 autoloading. `Writer` delegates conversion to `Strategy/StrategyInterface`; MySQL encoding helpers live in `Strategy/MySQL/`.
+Source lives in `lib/LongitudeOne/SpatialEncoder/`, using Composer PSR-0 autoloading. `Encoder` delegates conversion to `Strategy/StrategyInterface`; MySQL encoding helpers live in `Strategy/MySQL/`.
 
 Strategies preserve X/Y coordinate order. SRIDs do not trigger axis swapping.
 
-Tests mirror the source under `tests/LongitudeOne/SpatialWriter/Tests/Unit/`.
+Tests mirror the source under `tests/LongitudeOne/SpatialEncoder/Tests/Unit/`.
 
 Quality tools have separate Composer installations and configuration under `quality/`. CI workflows live in `.github/workflows/`.
 
@@ -347,15 +347,15 @@ Breaking changes MUST follow Conventional Commits notation and MUST also satisfy
 A breaking change MAY be indicated with `!`:
 
 ```text
-feat!: change public writer API
+feat!: change public encoder API
 ```
 
 or with a `BREAKING CHANGE:` footer:
 
 ```text
-feat: change public writer API
+feat: change public encoder API
 
-BREAKING CHANGE: Writer::write() now requires an explicit format.
+BREAKING CHANGE: Encoder::encode() now requires an explicit format.
 ```
 
 Both MAY be used together when appropriate.

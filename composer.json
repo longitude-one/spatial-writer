@@ -1,8 +1,8 @@
 {
-    "name": "longitude-one/spatial-writer",
+    "name": "longitude-one/spatial-encoder",
     "type": "library",
-    "description": "This library convert any spatial interfaces to different binary and/or string format.",
-    "keywords": ["opengis", "postgis", "gis", "spatial", "geometry", "geography", "iso-13249", "ewkb", "php"],
+    "description": "This library encode any spatial interfaces into different binary or string format.",
+    "keywords": ["encode", "opengis", "postgis", "gis", "spatial", "geometry", "geography", "iso-13249", "ewkb", "wkt", "ewkt", "wkd", "php"],
     "authors": [
         {
             "name": "Alexandre Tranchant",
@@ -27,8 +27,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
-            "LongitudeOne\\SpatialWriter": "lib/",
-            "LongitudeOne\\SpatialWriter\\Tests": "tests/"
+            "LongitudeOne\\SpatialEncoder": "lib/",
+            "LongitudeOne\\SpatialEncoder\\Tests": "tests/"
         }
     },
     "scripts": {

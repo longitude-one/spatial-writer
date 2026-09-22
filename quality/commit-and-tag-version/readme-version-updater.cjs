@@ -4,14 +4,14 @@
 
 const SEMVER_PATTERN = '\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?';
 const PACKAGE_VERSION_PATTERN = new RegExp(
-  `(composer require longitude-one/spatial-writer:)(${SEMVER_PATTERN})(?=\\s|$)`,
+  `(composer require longitude-one/spatial-encoder:)(${SEMVER_PATTERN})(?=\\s|$)`,
 );
 
 module.exports.readVersion = function (contents) {
   const match = contents.match(PACKAGE_VERSION_PATTERN);
 
   if (!match) {
-    throw new Error('readme-version-updater: No Spatial Writer installation version found in README.md.');
+    throw new Error('readme-version-updater: No Spatial Encoder installation version found in README.md.');
   }
 
   return match[2];
