@@ -67,7 +67,7 @@ jobs:
               with:
                 token: ${{ secrets.CODECOV_TOKEN }}
                 files: .phpunit-cache/coverage.xml
-                slug: longitude-one/spatial-writer
+                slug: longitude-one/spatial-encoder
 
             ## Quality checks
             ## PHP-CS-Fixer is needed with only one version of PHP
