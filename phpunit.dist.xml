@@ -8,8 +8,8 @@
             displayDetailsOnTestsThatTriggerErrors="true"
             displayDetailsOnPhpunitDeprecations="true">
     <testsuites>
-        <testsuite name="spatial-writer">
-            <directory>tests/LongitudeOne/SpatialWriter/Tests</directory>
+        <testsuite name="spatial-encoder">
+            <directory>tests/LongitudeOne/SpatialEncoder/Tests</directory>
         </testsuite>
     </testsuites>
     <source>

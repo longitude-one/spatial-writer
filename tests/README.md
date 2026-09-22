@@ -1,6 +1,6 @@
 # Test Execution Guide
 
-This directory contains the automated test suite for the spatial writer library.
+This directory contains the automated test suite for the spatial encoder library.
 
 ## How tests are executed
 
@@ -28,7 +28,7 @@ it does not return the internal representation with its SRID prefix.
 
 `Strategy/MySQL/GeometryCoordinateOrderTest.php` and
 `Strategy/MySQL/GeographyCoordinateOrderTest.php`, under
-`LongitudeOne/SpatialWriter/Tests/Unit/`, contain literal regression examples
+`LongitudeOne/SpatialEncoder/Tests/Unit/`, contain literal regression examples
 for all seven supported types, empty and nested collections, polygon holes,
 and the Paris point from issue #5. Each family also has separate tests for
 nested MultiPoint, MultiLineString and MultiPolygon values with SRID 4326
@@ -63,7 +63,7 @@ composer test-local
 
 This command generates a coverage report at ./phpunit-cache/coverage.xml that can be imported by your IDE to track code coverage.
 
-![Sunburst](https://codecov.io/gh/longitude-one/spatial-writer/graphs/sunburst.svg?token=NIFES3ETWH)
+![Sunburst](https://codecov.io/gh/longitude-one/spatial-encoder/graphs/sunburst.svg?token=NIFES3ETWH)
 
 
 ## WKT strategy
@@ -77,7 +77,7 @@ provides reference output; whitespace around punctuation may differ.
 
 ### Explicit WKT examples
 
-`LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples/` contains eight
+`LongitudeOne/SpatialEncoder/Tests/Unit/Strategy/Wkt/Examples/` contains eight
 standalone test classes: `GeometryXyTest`, `GeometryXyzTest`, `GeometryXymTest`,
 `GeometryXyzmTest`, and their `Geography` equivalents.
 
@@ -94,7 +94,7 @@ collections, and adjacent surface patches.
 Run this additional suite independently:
 
 ```bash
-vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkt/Examples
+vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialEncoder/Tests/Unit/Strategy/Wkt/Examples
 ```
 
 
@@ -103,12 +103,12 @@ vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialWriter/Tests/Unit/Str
 Run `vendor/bin/phpunit --no-coverage --filter EwktStrategyTest` for explicit
 EWKT examples. These tests cover nonzero, zero, and default SRIDs; empty
 values; Z/M/ZM dimensions; nested collections with a single outer SRID
-prefix; repeated conversions; and integration with `Writer`.
+prefix; repeated conversions; and integration with `Encoder`.
 
 
 ## Explicit ISO WKB examples
 
-`LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkb/Examples/` contains 136
+`LongitudeOne/SpatialEncoder/Tests/Unit/Strategy/Wkb/Examples/` contains 136
 literal examples covering all 68 concrete classes in both Geometry and
 Geography families and all available XY, XYZ, XYM and XYZM dimensions.
 Each type has a populated and an empty example, with direct constructors,
@@ -123,13 +123,13 @@ with empty members and explicit failures for unsupported types/interfaces.
 Every example with SRID 4326 verifies that WKB omits the SRID.
 
 ```bash
-vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Wkb
+vendor/bin/phpunit --no-coverage tests/LongitudeOne/SpatialEncoder/Tests/Unit/Strategy/Wkb
 ```
 
 
 ## Explicit EWKB examples
 
-`LongitudeOne/SpatialWriter/Tests/Unit/Strategy/Ewkb/Examples/` contains 136
+`LongitudeOne/SpatialEncoder/Tests/Unit/Strategy/Ewkb/Examples/` contains 136
 literal examples: populated and empty values for all 68 concrete classes.
 Each test includes its complete constructor, WKT comment and expected hex.
 The expectations use the GDAL-verified ISO coordinate payloads with EWKB

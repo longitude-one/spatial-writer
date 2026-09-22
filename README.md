@@ -1,19 +1,18 @@
-# Spatial Writer
+# Spatial Encoder
 
-The writer module provide an interface to convert any SpatialInterfaces to other formats.
+The encoder module provides an interface for encoding any `SpatialInterface` into other formats.
 
-This library provides five strategies to convert spatial interfaces to other formats:
- * A strategy to convert any spatial interfaces to extended well known binary (EWKB).
- * Another one to convert any spatial interfaces to ISO well known binary (WKB).
- * A strategy to convert spatial interfaces to the internal MySQL storage format.
- * A strategy to convert spatial interfaces to well-known text (WKT).
- * A strategy to convert spatial interfaces to extended well-known text (EWKT), including a nonzero SRID.
+This library provides five strategies for encoding spatial interfaces into other formats:
 
-Feel free to provide any other strategy to convert spatial interfaces to other formats.
+* A strategy for encoding any spatial interface into Extended Well-Known Binary (EWKB).
+* A strategy for encoding any spatial interface into ISO Well-Known Binary (WKB).
+* A strategy for encoding spatial interfaces into the internal MySQL storage format.
+* A strategy for encoding spatial interfaces into Well-Known Text (WKT).
+* A strategy for encoding spatial interfaces into Extended Well-Known Text (EWKT), including a non-zero SRID.
 
-See the [strategy guide](docs/strategies.md) for a comparison of the five formats,
-usage examples, implementation limits, and links to reference documentation.
+Feel free to provide additional strategies for encoding spatial interfaces into other formats.
 
+See the [strategy guide](docs/strategies.md) for a comparison of the five formats, usage examples, implementation limitations, and links to reference documentation.
 
 ## Current status
 ![longitude-one/spatial--writer](https://img.shields.io/badge/longitude--one-spatial--writer-blue)
@@ -31,4 +30,3 @@ usage examples, implementation limits, and links to reference documentation.
 ```bash
 composer require longitude-one/spatial-writer:0.0.0
 ```
-

@@ -1,4 +1,4 @@
-This file is part of the binary-writer project.
+This file is part of the spatial-encoder project.
 
 PHP 8.4 | 8.5
 

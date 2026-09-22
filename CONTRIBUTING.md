@@ -1,4 +1,4 @@
-# How to contribute to spatial-writer
+# How to contribute to spatial-encoder
 
 This library is open to contributions. 
 It comes with a set of quality tools to help you to maintain the quality of the code and pass the CI's tests. 
