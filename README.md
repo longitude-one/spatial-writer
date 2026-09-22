@@ -15,18 +15,18 @@ Feel free to provide additional strategies for encoding spatial interfaces into 
 See the [strategy guide](docs/strategies.md) for a comparison of the five formats, usage examples, implementation limitations, and links to reference documentation.
 
 ## Current status
-![longitude-one/spatial--writer](https://img.shields.io/badge/longitude--one-spatial--writer-blue)
-![Stable release](https://img.shields.io/github/v/release/longitude-one/spatial-writer)
-![Minimum PHP Version](https://img.shields.io/packagist/php-v/longitude-one/spatial-writer.svg?maxAge=3600)
-[![Packagist License](https://img.shields.io/packagist/l/longitude-one/spatial-writer)](https://github.com/longitude-one/spatial-writer/blob/main/LICENSE)
+![longitude-one/spatial--encoder](https://img.shields.io/badge/longitude--one-spatial--encoder-blue)
+![Stable release](https://img.shields.io/github/v/release/longitude-one/spatial-encoder)
+![Minimum PHP Version](https://img.shields.io/packagist/php-v/longitude-one/spatial-encoder.svg?maxAge=3600)
+[![Packagist License](https://img.shields.io/packagist/l/longitude-one/spatial-encoder)](https://github.com/longitude-one/spatial-encoder/blob/main/LICENSE)
 
-[![Last integration test](https://github.com/longitude-one/spatial-writer/actions/workflows/php-oldest.yaml/badge.svg)](https://github.com/longitude-one/spatial-writer/actions/workflows/php-oldest.yaml)
-[![Downloads](https://img.shields.io/packagist/dm/longitude-one/spatial-writer.svg)](https://packagist.org/packages/longitude-one/spatial-writer)
-[![codecov](https://codecov.io/gh/longitude-one/spatial-writer/branch/main/graph/badge.svg?token=NIFES3ETWH)](https://codecov.io/gh/longitude-one/spatial-writer)
+[![Last integration test](https://github.com/longitude-one/spatial-encoder/actions/workflows/php-oldest.yaml/badge.svg)](https://github.com/longitude-one/spatial-encoder/actions/workflows/php-oldest.yaml)
+[![Downloads](https://img.shields.io/packagist/dm/longitude-one/spatial-encoder.svg)](https://packagist.org/packages/longitude-one/spatial-encoder)
+[![codecov](https://codecov.io/gh/longitude-one/spatial-encoder/branch/main/graph/badge.svg?token=NIFES3ETWH)](https://codecov.io/gh/longitude-one/spatial-encoder)
 
 
 ## Installation
 
 ```bash
-composer require longitude-one/spatial-writer:0.0.0
+composer require longitude-one/spatial-encoder:0.0.0
 ```
