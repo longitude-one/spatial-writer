@@ -26,9 +26,13 @@
     "prefer-stable": true,
     "minimum-stability": "dev",
     "autoload": {
-        "psr-0": {
-            "LongitudeOne\\SpatialEncoder": "lib/",
-            "LongitudeOne\\SpatialEncoder\\Tests": "tests/"
+        "psr-4": {
+            "LongitudeOne\\SpatialEncoder\\": "lib/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LongitudeOne\\SpatialEncoder\\Tests\\": "tests/"
         }
     },
     "scripts": {

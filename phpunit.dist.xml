@@ -9,7 +9,7 @@
             displayDetailsOnPhpunitDeprecations="true">
     <testsuites>
         <testsuite name="spatial-encoder">
-            <directory>tests/LongitudeOne/SpatialEncoder/Tests</directory>
+            <directory>tests/</directory>
         </testsuite>
     </testsuites>
     <source>
